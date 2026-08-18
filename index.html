@@ -1,0 +1,717 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>VoiceNotes - AI Voice Notes</title>
+
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+    <!-- =====================================================
+         LOGIN PAGE
+    ====================================================== -->
+
+    <section id="loginPage" class="auth-page">
+
+        <div class="auth-card">
+
+            <div class="logo">
+                🎙️ VoiceNotes
+            </div>
+
+            <h1>Welcome Back</h1>
+
+            <p class="subtitle">
+                Login to manage your voice notes
+            </p>
+
+            <form id="loginForm">
+
+                <label for="loginEmail">
+                    Email
+                </label>
+
+                <input
+                    type="email"
+                    id="loginEmail"
+                    placeholder="Enter your email"
+                    required
+                >
+
+                <label for="loginPassword">
+                    Password
+                </label>
+
+                <input
+                    type="password"
+                    id="loginPassword"
+                    placeholder="Enter your password"
+                    required
+                >
+
+                <button
+                    type="submit"
+                    class="primary-btn"
+                >
+                    Login
+                </button>
+
+            </form>
+
+            <p class="switch-text">
+
+                Don't have an account?
+
+                <button
+                    id="showRegister"
+                    type="button"
+                >
+                    Create Account
+                </button>
+
+            </p>
+
+        </div>
+
+    </section>
+
+
+    <!-- =====================================================
+         REGISTER PAGE
+    ====================================================== -->
+
+    <section
+        id="registerPage"
+        class="auth-page hidden"
+    >
+
+        <div class="auth-card">
+
+            <div class="logo">
+                🎙️ VoiceNotes
+            </div>
+
+            <h1>Create Account</h1>
+
+            <p class="subtitle">
+                Start creating voice notes
+            </p>
+
+            <form id="registerForm">
+
+                <label for="registerName">
+                    Name
+                </label>
+
+                <input
+                    type="text"
+                    id="registerName"
+                    placeholder="Enter your name"
+                    required
+                >
+
+                <label for="registerEmail">
+                    Email
+                </label>
+
+                <input
+                    type="email"
+                    id="registerEmail"
+                    placeholder="Enter your email"
+                    required
+                >
+
+                <label for="registerPassword">
+                    Password
+                </label>
+
+                <input
+                    type="password"
+                    id="registerPassword"
+                    placeholder="Create password"
+                    required
+                >
+
+                <button
+                    type="submit"
+                    class="primary-btn"
+                >
+                    Create Account
+                </button>
+
+            </form>
+
+            <p class="switch-text">
+
+                Already have an account?
+
+                <button
+                    id="showLogin"
+                    type="button"
+                >
+                    Login
+                </button>
+
+            </p>
+
+        </div>
+
+    </section>
+
+
+    <!-- =====================================================
+         DASHBOARD
+    ====================================================== -->
+
+    <section
+        id="dashboard"
+        class="hidden"
+    >
+
+        <!-- NAVBAR -->
+
+        <nav class="navbar">
+
+            <div class="logo">
+                🎙️ VoiceNotes
+            </div>
+
+            <div class="nav-right">
+
+                <span id="welcomeUser">
+                    Welcome!
+                </span>
+
+                <button
+                    id="themeBtn"
+                    class="icon-btn"
+                    type="button"
+                    title="Toggle dark mode"
+                >
+                    🌙
+                </button>
+
+                <button
+                    id="logoutBtn"
+                    class="logout-btn"
+                    type="button"
+                >
+                    Logout
+                </button>
+
+            </div>
+
+        </nav>
+
+
+        <!-- MAIN -->
+
+        <main class="container">
+
+            <div class="dashboard-header">
+
+                <div>
+
+                    <h1>
+                        My Voice Notes
+                    </h1>
+
+                    <p>
+                        Speak naturally and save your thoughts.
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <!-- =================================================
+                 VOICE RECORDER
+            ================================================== -->
+
+            <section class="voice-box">
+
+                <h2>
+                    🎤 Create Voice Note
+                </h2>
+
+                <p id="status">
+                    Select the language you will speak and start recording.
+                </p>
+
+
+                <!-- SPEAKING LANGUAGE -->
+
+                <div class="language-box">
+
+                    <label for="speechLanguage">
+                        🎤 Speak In
+                    </label>
+
+                    <select id="speechLanguage">
+
+                        <!-- INDIA -->
+
+                        <option value="English">
+                            🇬🇧 English
+                        </option>
+
+                        <option value="Hindi">
+                            🇮🇳 Hindi
+                        </option>
+
+                        <option value="Bengali">
+                            🇮🇳 Bengali
+                        </option>
+
+                        <option value="Gujarati">
+                            🇮🇳 Gujarati
+                        </option>
+
+                        <option value="Kannada">
+                            🇮🇳 Kannada
+                        </option>
+
+                        <option value="Malayalam">
+                            🇮🇳 Malayalam
+                        </option>
+
+                        <option value="Marathi">
+                            🇮🇳 Marathi
+                        </option>
+
+                        <option value="Punjabi">
+                            🇮🇳 Punjabi
+                        </option>
+
+                        <option value="Tamil">
+                            🇮🇳 Tamil
+                        </option>
+
+                        <option value="Telugu">
+                            🇮🇳 Telugu
+                        </option>
+
+                        <option value="Urdu">
+                            🇮🇳 Urdu
+                        </option>
+
+                        <!-- INTERNATIONAL -->
+
+                        <option value="German">
+                            🇩🇪 German
+                        </option>
+
+                        <option value="French">
+                            🇫🇷 French
+                        </option>
+
+                        <option value="Spanish">
+                            🇪🇸 Spanish
+                        </option>
+
+                        <option value="Italian">
+                            🇮🇹 Italian
+                        </option>
+
+                        <option value="Portuguese">
+                            🇵🇹 Portuguese
+                        </option>
+
+                        <option value="Japanese">
+                            🇯🇵 Japanese
+                        </option>
+
+                        <option value="Korean">
+                            🇰🇷 Korean
+                        </option>
+
+                        <option value="Chinese">
+                            🇨🇳 Chinese
+                        </option>
+
+                        <option value="Russian">
+                            🇷🇺 Russian
+                        </option>
+
+                        <option value="Arabic">
+                            🇸🇦 Arabic
+                        </option>
+
+                        <option value="Turkish">
+                            🇹🇷 Turkish
+                        </option>
+
+                        <option value="Dutch">
+                            🇳🇱 Dutch
+                        </option>
+
+                    </select>
+
+                </div>
+
+
+                <!-- TRANSLATION LANGUAGE -->
+
+                <div class="language-box">
+
+                    <label for="languageSelect">
+                        🌐 Translate To
+                    </label>
+
+                    <select id="languageSelect">
+
+                        <option value="English">
+                            🇬🇧 English
+                        </option>
+
+                        <option value="Hindi">
+                            🇮🇳 Hindi
+                        </option>
+
+                        <option value="Bengali">
+                            🇮🇳 Bengali
+                        </option>
+
+                        <option value="Gujarati">
+                            🇮🇳 Gujarati
+                        </option>
+
+                        <option value="Kannada">
+                            🇮🇳 Kannada
+                        </option>
+
+                        <option value="Malayalam">
+                            🇮🇳 Malayalam
+                        </option>
+
+                        <option value="Marathi">
+                            🇮🇳 Marathi
+                        </option>
+
+                        <option value="Punjabi">
+                            🇮🇳 Punjabi
+                        </option>
+
+                        <option value="Tamil">
+                            🇮🇳 Tamil
+                        </option>
+
+                        <option value="Telugu">
+                            🇮🇳 Telugu
+                        </option>
+
+                        <option value="Urdu">
+                            🇮🇳 Urdu
+                        </option>
+
+                        <option value="German">
+                            🇩🇪 German
+                        </option>
+
+                        <option value="French">
+                            🇫🇷 French
+                        </option>
+
+                        <option value="Spanish">
+                            🇪🇸 Spanish
+                        </option>
+
+                        <option value="Italian">
+                            🇮🇹 Italian
+                        </option>
+
+                        <option value="Portuguese">
+                            🇵🇹 Portuguese
+                        </option>
+
+                        <option value="Japanese">
+                            🇯🇵 Japanese
+                        </option>
+
+                        <option value="Korean">
+                            🇰🇷 Korean
+                        </option>
+
+                        <option value="Chinese">
+                            🇨🇳 Chinese
+                        </option>
+
+                        <option value="Russian">
+                            🇷🇺 Russian
+                        </option>
+
+                        <option value="Arabic">
+                            🇸🇦 Arabic
+                        </option>
+
+                        <option value="Turkish">
+                            🇹🇷 Turkish
+                        </option>
+
+                        <option value="Dutch">
+                            🇳🇱 Dutch
+                        </option>
+
+                    </select>
+
+                </div>
+
+
+                <!-- MICROPHONE -->
+
+                <div class="mic-container">
+
+                    <button
+                        id="micBtn"
+                        class="mic-btn"
+                        type="button"
+                    >
+                        🎤
+                    </button>
+
+                    <span id="recordingText">
+                        Start Recording
+                    </span>
+
+                </div>
+
+
+                <!-- ORIGINAL TEXT -->
+
+                <h3>
+                    Original Text
+                </h3>
+
+                <div
+                    id="transcript"
+                    class="transcript"
+                    contenteditable="true"
+                    data-placeholder="Your speech will appear here..."
+                ></div>
+
+
+                <!-- TRANSLATED TEXT -->
+
+                <h3>
+                    Translated Text
+                </h3>
+
+                <div
+                    id="translatedText"
+                    class="transcript"
+                    data-placeholder="Translation will appear here..."
+                ></div>
+
+
+                <!-- BASIC ACTIONS -->
+
+                <div class="voice-actions">
+
+                    <button
+                        id="translateBtn"
+                        class="primary-btn"
+                        type="button"
+                    >
+                        🌐 Translate
+                    </button>
+
+                    <button
+                        id="saveVoiceNote"
+                        class="primary-btn"
+                        type="button"
+                    >
+                        💾 Save Note
+                    </button>
+
+                    <button
+                        id="clearTranscript"
+                        class="secondary-btn"
+                        type="button"
+                    >
+                        Clear
+                    </button>
+
+                </div>
+
+
+                <!-- =================================================
+                     AI TOOLS
+                ================================================== -->
+
+                <div class="ai-tools">
+
+                    <h3>
+                        🤖 AI Note Assistant
+                    </h3>
+
+                    <p class="ai-description">
+                        Use AI to summarize, extract key points,
+                        or improve your note.
+                    </p>
+
+                    <div class="ai-buttons">
+
+                        <button
+                            id="summaryBtn"
+                            class="ai-btn"
+                            type="button"
+                        >
+                            📝 AI Summary
+                        </button>
+
+                        <button
+                            id="keyPointsBtn"
+                            class="ai-btn"
+                            type="button"
+                        >
+                            🔑 AI Key Points
+                        </button>
+
+                        <button
+                            id="improveBtn"
+                            class="ai-btn"
+                            type="button"
+                        >
+                            ✨ Improve Note
+                        </button>
+
+                    </div>
+
+                </div>
+
+
+                <!-- AI RESULT -->
+
+                <div
+                    id="aiResultBox"
+                    class="ai-result hidden"
+                >
+
+                    <div class="ai-result-header">
+
+                        <h3 id="aiResultTitle">
+                            AI Result
+                        </h3>
+
+                        <button
+                            id="closeAIResult"
+                            type="button"
+                        >
+                            ✕
+                        </button>
+
+                    </div>
+
+                    <div id="aiResultContent"></div>
+
+                </div>
+
+            </section>
+
+
+            <!-- =================================================
+                 SAVED NOTES
+            ================================================== -->
+
+            <section class="notes-section">
+
+                <div class="notes-header">
+
+                    <div>
+
+                        <h2>
+                            Saved Notes
+                        </h2>
+
+                        <p class="notes-subtitle">
+                            Your notes are stored securely in MongoDB.
+                        </p>
+
+                    </div>
+
+                    <input
+                        type="text"
+                        id="searchInput"
+                        placeholder="🔍 Search notes..."
+                    >
+
+                </div>
+
+
+                <div
+                    id="notesContainer"
+                    class="notes-container"
+                ></div>
+
+
+                <p
+                    id="emptyMessage"
+                    class="empty-message"
+                >
+                    No notes available. Create your first note!
+                </p>
+
+            </section>
+
+        </main>
+
+    </section>
+
+
+    <!-- =====================================================
+         EDIT MODAL
+    ====================================================== -->
+
+    <div
+        id="editModal"
+        class="modal hidden"
+    >
+
+        <div class="modal-content">
+
+            <h2>
+                ✏️ Edit Note
+            </h2>
+
+            <textarea
+                id="editText"
+                placeholder="Edit your note..."
+            ></textarea>
+
+            <div class="modal-actions">
+
+                <button
+                    id="cancelEdit"
+                    class="secondary-btn"
+                    type="button"
+                >
+                    Cancel
+                </button>
+
+                <button
+                    id="saveEdit"
+                    class="primary-btn"
+                    type="button"
+                >
+                    Save Changes
+                </button>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <script src="script.js"></script>
+
+</body>
+
+</html>
+
