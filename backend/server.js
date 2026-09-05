@@ -1,13 +1,13 @@
 require("dotenv").config();
 
 console.log(
-    "OpenAI API Key loaded:",
-    process.env.OPENAI_API_KEY ? "YES" : "NO"
+    "Gemini API Key loaded:",
+    process.env.GEMINI_API_KEY ? "YES" : "NO"
 );
 
 console.log(
-    "OpenAI Model:",
-    process.env.OPENAI_MODEL
+    "Gemini Model:",
+    process.env.GEMINI_MODEL
 );
 
 const express = require("express");

@@ -1,16 +1,48 @@
 const express = require("express");
-const OpenAI = require("openai");
 
 const router = express.Router();
 
 
-const client =
-    new OpenAI({
+// =====================================================
+// GEMINI CLIENT
+// =====================================================
 
-        apiKey:
-            process.env.OPENAI_API_KEY
+// We use dynamic import because the backend project
+// is using CommonJS (require/module.exports).
 
-    });
+let geminiClient = null;
+
+
+async function getGeminiClient() {
+
+    if (geminiClient) {
+        return geminiClient;
+    }
+
+    if (!process.env.GEMINI_API_KEY) {
+
+        throw new Error(
+            "GEMINI_API_KEY is missing in the .env file."
+        );
+
+    }
+
+    const { GoogleGenAI } =
+        await import("@google/genai");
+
+
+    geminiClient =
+        new GoogleGenAI({
+
+            apiKey:
+                process.env.GEMINI_API_KEY
+
+        });
+
+
+    return geminiClient;
+
+}
 
 
 // =====================================================
@@ -21,26 +53,57 @@ async function generateAI(prompt) {
 
     try {
 
+        const ai =
+            await getGeminiClient();
+
+
+        const model =
+            process.env.GEMINI_MODEL ||
+            "gemini-3.7-flash";
+
+
+        console.log(
+            "Gemini AI request using model:",
+            model
+        );
+
+
         const response =
-            await client.responses.create({
+            await ai.models.generateContent({
 
-                model:
-                    process.env.OPENAI_MODEL ||
-                    "gpt-5",
+                model: model,
 
-                input:
-                    prompt
+                contents: prompt
 
             });
 
 
-        return response.output_text;
+        const result =
+            response.text;
+
+
+        if (
+            !result ||
+            !result.trim()
+        ) {
+
+            throw new Error(
+                "Gemini returned an empty response."
+            );
+
+        }
+
+
+        return result.trim();
 
 
     } catch (error) {
 
         console.error(
-            "OPENAI API ERROR:",
+            "GEMINI API ERROR:"
+        );
+
+        console.error(
             error
         );
 
@@ -53,7 +116,7 @@ async function generateAI(prompt) {
 
 
 // =====================================================
-// HELPER - AI ERROR
+// GEMINI ERROR HANDLER
 // =====================================================
 
 function handleAIError(
@@ -68,33 +131,91 @@ function handleAIError(
     );
 
 
+    const status =
+        error?.status ||
+        error?.statusCode ||
+        error?.code;
+
+
+    // -------------------------------------------------
+    // INVALID API KEY
+    // -------------------------------------------------
+
     if (
-        error.status === 401
+        status === 401 ||
+        status === "401"
     ) {
 
         return res.status(401).json({
 
             message:
-                "Invalid OpenAI API key."
+                "Invalid Gemini API key. Please check GEMINI_API_KEY in your .env file."
 
         });
 
     }
 
 
+    // -------------------------------------------------
+    // PERMISSION ERROR
+    // -------------------------------------------------
+
     if (
-        error.status === 429
+        status === 403 ||
+        status === "403"
+    ) {
+
+        return res.status(403).json({
+
+            message:
+                "Gemini API permission denied. Please check your Gemini API key and project."
+
+        });
+
+    }
+
+
+    // -------------------------------------------------
+    // QUOTA / RATE LIMIT
+    // -------------------------------------------------
+
+    if (
+        status === 429 ||
+        status === "429"
     ) {
 
         return res.status(429).json({
 
             message:
-                "OpenAI API has no available credits/quota. Please use an API key with available credits."
+                "Gemini API quota or rate limit reached. Please wait and try again, or check your Gemini API limits."
 
         });
 
     }
 
+
+    // -------------------------------------------------
+    // MODEL NOT FOUND
+    // -------------------------------------------------
+
+    if (
+        status === 404 ||
+        status === "404"
+    ) {
+
+        return res.status(404).json({
+
+            message:
+                "Gemini model was not found. Check GEMINI_MODEL in your .env file."
+
+        });
+
+    }
+
+
+    // -------------------------------------------------
+    // GENERAL ERROR
+    // -------------------------------------------------
 
     return res.status(500).json({
 
@@ -150,6 +271,7 @@ Rules:
 3. Do not change the meaning.
 4. Do not mention that you are an AI.
 5. Return only the summary.
+6. Keep the summary concise but useful.
 
 NOTE:
 
@@ -312,10 +434,12 @@ Rules:
 1. Fix grammar.
 2. Fix spelling.
 3. Improve clarity.
-4. Keep the original meaning.
-5. Do not add new facts.
-6. Return only the improved note.
-7. Do not explain the changes.
+4. Improve sentence structure.
+5. Keep the original meaning.
+6. Do not add new facts.
+7. Do not remove important information.
+8. Return only the improved note.
+9. Do not explain the changes.
 
 NOTE:
 
@@ -391,8 +515,10 @@ Rules:
 2. Preserve the original meaning.
 3. Do not summarize.
 4. Do not add new information.
-5. Do not explain the translation.
-6. Return ONLY the translated text.
+5. Do not remove information.
+6. Keep the same overall tone.
+7. Do not explain the translation.
+8. Return ONLY the translated text.
 
 TEXT:
 
@@ -423,5 +549,50 @@ ${text}
 );
 
 
+// =====================================================
+// TEST AI ROUTE
+// =====================================================
+
+router.get(
+    "/test",
+    async (req, res) => {
+
+        try {
+
+            const result =
+                await generateAI(
+                    "Reply with exactly: Gemini AI is working."
+                );
+
+
+            res.json({
+
+                success: true,
+
+                result:
+                    result
+
+            });
+
+
+        } catch (error) {
+
+            return handleAIError(
+                error,
+                res,
+                "Gemini AI test failed."
+            );
+
+        }
+
+    }
+);
+
+
+// =====================================================
+// EXPORT
+// =====================================================
+
 module.exports =
     router;
+
