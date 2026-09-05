@@ -1,5 +1,6 @@
 // ============================================
 // VOICENOTES - COMPLETE SCRIPT.JS
+// MOBILE SPEECH RECOGNITION FIXED
 // ============================================
 
 
@@ -7,32 +8,55 @@
 // CONFIGURATION
 // ============================================
 
-const API_URL = "https://ai-voice-to-text-web.onrender.com/api";
+const API_URL =
+    "https://ai-voice-to-text-web.onrender.com/api";
 
 
 // ============================================
 // ELEMENTS
 // ============================================
 
-const loginPage = document.getElementById("loginPage");
-const registerPage = document.getElementById("registerPage");
-const dashboard = document.getElementById("dashboard");
+const loginPage =
+    document.getElementById("loginPage");
 
-const loginForm = document.getElementById("loginForm");
-const registerForm = document.getElementById("registerForm");
+const registerPage =
+    document.getElementById("registerPage");
 
-const showRegister = document.getElementById("showRegister");
-const showLogin = document.getElementById("showLogin");
+const dashboard =
+    document.getElementById("dashboard");
 
-const logoutBtn = document.getElementById("logoutBtn");
-const welcomeUser = document.getElementById("welcomeUser");
+const loginForm =
+    document.getElementById("loginForm");
 
-const micBtn = document.getElementById("micBtn");
-const recordingText = document.getElementById("recordingText");
-const statusText = document.getElementById("status");
+const registerForm =
+    document.getElementById("registerForm");
 
-const transcript = document.getElementById("transcript");
-const translatedText = document.getElementById("translatedText");
+const showRegister =
+    document.getElementById("showRegister");
+
+const showLogin =
+    document.getElementById("showLogin");
+
+const logoutBtn =
+    document.getElementById("logoutBtn");
+
+const welcomeUser =
+    document.getElementById("welcomeUser");
+
+const micBtn =
+    document.getElementById("micBtn");
+
+const recordingText =
+    document.getElementById("recordingText");
+
+const statusText =
+    document.getElementById("status");
+
+const transcript =
+    document.getElementById("transcript");
+
+const translatedText =
+    document.getElementById("translatedText");
 
 const speechLanguage =
     document.getElementById("speechLanguage");
@@ -74,7 +98,9 @@ const saveEdit =
     document.getElementById("saveEdit");
 
 
+// ============================================
 // AI ELEMENTS
+// ============================================
 
 const summaryBtn =
     document.getElementById("summaryBtn");
@@ -106,6 +132,7 @@ let token =
     localStorage.getItem("voiceNotesToken");
 
 let currentUser = null;
+
 
 try {
 
@@ -141,24 +168,38 @@ let latestImprovedNote = "";
 
 if (showRegister) {
 
-    showRegister.addEventListener("click", () => {
+    showRegister.addEventListener(
+        "click",
+        () => {
 
-        loginPage.classList.add("hidden");
-        registerPage.classList.remove("hidden");
+            loginPage.classList.add("hidden");
 
-    });
+            registerPage.classList.remove(
+                "hidden"
+            );
+
+        }
+    );
 
 }
 
 
 if (showLogin) {
 
-    showLogin.addEventListener("click", () => {
+    showLogin.addEventListener(
+        "click",
+        () => {
 
-        registerPage.classList.add("hidden");
-        loginPage.classList.remove("hidden");
+            registerPage.classList.add(
+                "hidden"
+            );
 
-    });
+            loginPage.classList.remove(
+                "hidden"
+            );
+
+        }
+    );
 
 }
 
@@ -379,6 +420,7 @@ if (loginForm) {
 function showDashboard() {
 
     loginPage.classList.add("hidden");
+
     registerPage.classList.add("hidden");
 
     dashboard.classList.remove("hidden");
@@ -407,7 +449,11 @@ if (logoutBtn) {
         "click",
         () => {
 
+            stopRecording();
+
+
             token = null;
+
             currentUser = null;
 
 
@@ -436,6 +482,7 @@ if (logoutBtn) {
 
 // ============================================
 // SPEECH RECOGNITION
+// MOBILE RELIABLE VERSION
 // ============================================
 
 const SpeechRecognition =
@@ -475,12 +522,29 @@ const speechLanguages = {
 };
 
 
+// ============================================
+// SPEECH STATE
+// ============================================
+
 let recognition = null;
+
 let isRecording = false;
+
+let shouldKeepRecording = false;
+
+let isStarting = false;
+
+let finalTranscript = "";
+
+let lastFinalText = "";
+
+let lastFinalTime = 0;
+
+let restartTimer = null;
 
 
 // ============================================
-// SPEECH LANGUAGE
+// GET SPEECH LANGUAGE
 // ============================================
 
 function getSpeechLanguage() {
@@ -493,52 +557,92 @@ function getSpeechLanguage() {
 
 
 // ============================================
-// INITIALIZE SPEECH
+// CREATE RECOGNITION
 // ============================================
 
-if (SpeechRecognition) {
+function createRecognition() {
 
-    recognition =
+    if (!SpeechRecognition) {
+
+        return null;
+
+    }
+
+
+    const instance =
         new SpeechRecognition();
 
 
-    recognition.continuous =
-        true;
+    /*
+     * MOBILE FIX
+     *
+     * continuous = false
+     * is more reliable on mobile browsers.
+     */
 
-    recognition.interimResults =
-        true;
+    instance.continuous = false;
 
 
-    recognition.lang =
+    /*
+     * We only save final results.
+     * This prevents interim duplication.
+     */
+
+    instance.interimResults = false;
+
+
+    instance.maxAlternatives = 1;
+
+
+    instance.lang =
         speechLanguages[
             getSpeechLanguage()
         ] || "en-US";
 
 
-    recognition.onstart = () => {
+    // ========================================
+    // ON START
+    // ========================================
+
+    instance.onstart = () => {
+
+        isStarting = false;
 
         isRecording = true;
 
 
-        micBtn.classList.add(
-            "recording"
-        );
+        if (micBtn) {
+
+            micBtn.classList.add(
+                "recording"
+            );
+
+        }
 
 
-        recordingText.textContent =
-            "Listening...";
+        if (recordingText) {
+
+            recordingText.textContent =
+                "Listening...";
+
+        }
 
 
-        statusText.textContent =
-            `Listening in ${getSpeechLanguage()}. Speak now.`;
+        if (statusText) {
+
+            statusText.textContent =
+                `Listening in ${getSpeechLanguage()}. Speak now.`;
+
+        }
 
     };
 
 
-    recognition.onresult = (event) => {
+    // ========================================
+    // ON RESULT
+    // ========================================
 
-        let finalText = "";
-
+    instance.onresult = (event) => {
 
         for (
             let i = event.resultIndex;
@@ -546,36 +650,95 @@ if (SpeechRecognition) {
             i++
         ) {
 
-            const text =
-                event.results[i][0].transcript;
+            const result =
+                event.results[i];
 
 
-            if (
-                event.results[i].isFinal
-            ) {
+            if (!result.isFinal) {
 
-                finalText +=
-                    text + " ";
+                continue;
 
             }
 
-        }
+
+            const text =
+                result[0]
+                    .transcript
+                    .trim();
 
 
-        if (
-            finalText &&
-            transcript
-        ) {
+            if (!text) {
 
-            transcript.textContent +=
-                finalText;
+                continue;
+
+            }
+
+
+            const now =
+                Date.now();
+
+
+            // ==================================
+            // DUPLICATE PROTECTION
+            // ==================================
+
+            const exactDuplicate =
+                text === lastFinalText &&
+                (now - lastFinalTime) < 3000;
+
+
+            if (exactDuplicate) {
+
+                console.log(
+                    "Duplicate speech result ignored:",
+                    text
+                );
+
+                continue;
+
+            }
+
+
+            // ==================================
+            // ADD FINAL TEXT
+            // ==================================
+
+            finalTranscript +=
+                (finalTranscript ? " " : "") +
+                text;
+
+
+            lastFinalText =
+                text;
+
+            lastFinalTime =
+                now;
+
+
+            // ==================================
+            // UPDATE TRANSCRIPT
+            // ==================================
+
+            if (transcript) {
+
+                transcript.textContent =
+                    finalTranscript;
+
+            }
 
         }
 
     };
 
 
-    recognition.onerror = (event) => {
+    // ========================================
+    // ON ERROR
+    // ========================================
+
+    instance.onerror = (event) => {
+
+        isStarting = false;
+
 
         console.error(
             "Speech recognition error:",
@@ -584,20 +747,68 @@ if (SpeechRecognition) {
 
 
         if (
-            event.error === "not-allowed"
+            event.error ===
+            "not-allowed"
         ) {
 
-            statusText.textContent =
-                "Microphone permission denied.";
+            shouldKeepRecording =
+                false;
 
-        } else if (
-            event.error === "network"
+            isRecording =
+                false;
+
+
+            if (statusText) {
+
+                statusText.textContent =
+                    "Microphone permission denied.";
+
+            }
+
+
+            return;
+
+        }
+
+
+        if (
+            event.error ===
+            "network"
         ) {
 
-            statusText.textContent =
-                "Speech network error. Try Chrome/Edge and check internet.";
+            if (statusText) {
 
-        } else {
+                statusText.textContent =
+                    "Speech network error. Check your internet.";
+
+            }
+
+
+            return;
+
+        }
+
+
+        if (
+            event.error ===
+            "no-speech"
+        ) {
+
+            if (
+                shouldKeepRecording
+            ) {
+
+                scheduleRecognitionRestart();
+
+            }
+
+
+            return;
+
+        }
+
+
+        if (statusText) {
 
             statusText.textContent =
                 "Speech error: " +
@@ -608,23 +819,322 @@ if (SpeechRecognition) {
     };
 
 
-    recognition.onend = () => {
+    // ========================================
+    // ON END
+    // ========================================
+
+    instance.onend = () => {
+
+        isStarting = false;
+
+
+        /*
+         * Mobile browser may automatically
+         * end the recognition session.
+         *
+         * Start a fresh session if the
+         * user has not pressed Stop.
+         */
+
+        if (shouldKeepRecording) {
+
+            scheduleRecognitionRestart();
+
+            return;
+
+        }
+
 
         isRecording = false;
+
+
+        if (micBtn) {
+
+            micBtn.classList.remove(
+                "recording"
+            );
+
+        }
+
+
+        if (recordingText) {
+
+            recordingText.textContent =
+                "Start Recording";
+
+        }
+
+    };
+
+
+    return instance;
+
+}
+
+
+// ============================================
+// CONTROLLED RESTART
+// ============================================
+
+function scheduleRecognitionRestart() {
+
+    if (!shouldKeepRecording) {
+
+        return;
+
+    }
+
+
+    if (restartTimer) {
+
+        clearTimeout(
+            restartTimer
+        );
+
+    }
+
+
+    restartTimer =
+        setTimeout(
+            () => {
+
+                startRecognitionSession();
+
+            },
+            250
+        );
+
+}
+
+
+// ============================================
+// START ONE RECOGNITION SESSION
+// ============================================
+
+function startRecognitionSession() {
+
+    if (!shouldKeepRecording) {
+
+        return;
+
+    }
+
+
+    if (isStarting) {
+
+        return;
+
+    }
+
+
+    if (recognition) {
+
+        try {
+
+            recognition.abort();
+
+        } catch (error) {
+
+            console.log(
+                "Previous recognition already stopped."
+            );
+
+        }
+
+    }
+
+
+    recognition =
+        createRecognition();
+
+
+    if (!recognition) {
+
+        return;
+
+    }
+
+
+    recognition.lang =
+        speechLanguages[
+            getSpeechLanguage()
+        ] || "en-US";
+
+
+    isStarting = true;
+
+
+    try {
+
+        recognition.start();
+
+    } catch (error) {
+
+        isStarting = false;
+
+
+        console.error(
+            "Recognition start error:",
+            error
+        );
+
+
+        if (shouldKeepRecording) {
+
+            scheduleRecognitionRestart();
+
+        }
+
+    }
+
+}
+
+
+// ============================================
+// START RECORDING
+// ============================================
+
+function startRecording() {
+
+    if (!SpeechRecognition) {
+
+        alert(
+            "Speech Recognition is not supported. Please use Google Chrome."
+        );
+
+        return;
+
+    }
+
+
+    if (
+        isRecording ||
+        shouldKeepRecording
+    ) {
+
+        return;
+
+    }
+
+
+    // Fresh recording session
+
+    finalTranscript = "";
+
+    lastFinalText = "";
+
+    lastFinalTime = 0;
+
+
+    shouldKeepRecording = true;
+
+
+    /*
+     * Start a new voice note.
+     */
+
+    if (transcript) {
+
+        transcript.textContent =
+            "";
+
+    }
+
+
+    startRecognitionSession();
+
+}
+
+
+// ============================================
+// STOP RECORDING
+// ============================================
+
+function stopRecording() {
+
+    shouldKeepRecording =
+        false;
+
+    isRecording =
+        false;
+
+    isStarting =
+        false;
+
+
+    if (restartTimer) {
+
+        clearTimeout(
+            restartTimer
+        );
+
+        restartTimer =
+            null;
+
+    }
+
+
+    if (recognition) {
+
+        try {
+
+            recognition.stop();
+
+        } catch (error) {
+
+            console.log(
+                "Recognition already stopped."
+            );
+
+        }
+
+    }
+
+
+    if (micBtn) {
 
         micBtn.classList.remove(
             "recording"
         );
 
+    }
+
+
+    if (recordingText) {
+
         recordingText.textContent =
             "Start Recording";
 
-    };
+    }
+
+
+    if (statusText) {
+
+        statusText.textContent =
+            "Recording stopped.";
+
+    }
+
+}
+
+
+// ============================================
+// INITIALIZE SPEECH
+// ============================================
+
+if (SpeechRecognition) {
+
+    recognition =
+        createRecognition();
 
 } else {
 
-    statusText.textContent =
-        "Speech Recognition is not supported. Use Google Chrome or Microsoft Edge.";
+    if (statusText) {
+
+        statusText.textContent =
+            "Speech Recognition is not supported. Use Google Chrome.";
+
+    }
 
 }
 
@@ -645,7 +1155,7 @@ if (speechLanguage) {
 
             if (
                 recognition &&
-                !isRecording
+                !shouldKeepRecording
             ) {
 
                 recognition.lang =
@@ -656,16 +1166,21 @@ if (speechLanguage) {
             }
 
 
-            statusText.textContent =
-                `Speak in ${language} and click the microphone.`;
+            if (statusText) {
+
+                statusText.textContent =
+                    `Speak in ${language} and click the microphone.`;
+
+            }
 
         }
     );
 
 }
 
+
 // ============================================
-// START / STOP RECORDING
+// MICROPHONE BUTTON
 // ============================================
 
 if (micBtn) {
@@ -674,10 +1189,11 @@ if (micBtn) {
         "click",
         () => {
 
-            if (!recognition) {
+            if (!recognition &&
+                !SpeechRecognition) {
 
                 alert(
-                    "Please use Google Chrome or Microsoft Edge."
+                    "Please use Google Chrome."
                 );
 
                 return;
@@ -685,70 +1201,13 @@ if (micBtn) {
             }
 
 
-            // ===============================
-            // STOP RECORDING
-            // ===============================
+            if (shouldKeepRecording) {
 
-            if (isRecording) {
+                stopRecording();
 
-                // Immediately update UI
-                isRecording = false;
+            } else {
 
-                if (micBtn) {
-                    micBtn.classList.remove("recording");
-                }
-
-                if (recordingText) {
-                    recordingText.textContent =
-                        "Start Recording";
-                }
-
-                if (statusText) {
-                    statusText.textContent =
-                        "Stopping recording...";
-                }
-
-                // Stop browser speech recognition
-                try {
-
-                    recognition.stop();
-
-                } catch (error) {
-
-                    console.error(
-                        "Error stopping recognition:",
-                        error
-                    );
-
-                }
-
-                return;
-            }
-
-
-            // ===============================
-            // START RECORDING
-            // ===============================
-
-            const selectedLanguage =
-                getSpeechLanguage();
-
-
-            recognition.lang =
-                speechLanguages[selectedLanguage] ||
-                "hi-IN";
-
-
-            try {
-
-                recognition.start();
-
-            } catch (error) {
-
-                console.error(
-                    "Could not start recognition:",
-                    error
-                );
+                startRecording();
 
             }
 
@@ -758,6 +1217,61 @@ if (micBtn) {
 }
 
 
+// ============================================
+// RESET SPEECH STATE
+// ============================================
+
+function resetSpeechState() {
+
+    shouldKeepRecording =
+        false;
+
+    isRecording =
+        false;
+
+    isStarting =
+        false;
+
+
+    if (restartTimer) {
+
+        clearTimeout(
+            restartTimer
+        );
+
+        restartTimer =
+            null;
+
+    }
+
+
+    finalTranscript =
+        "";
+
+    lastFinalText =
+        "";
+
+    lastFinalTime =
+        0;
+
+
+    if (recognition) {
+
+        try {
+
+            recognition.abort();
+
+        } catch (error) {
+
+            console.log(
+                "Recognition already stopped."
+            );
+
+        }
+
+    }
+
+}
 
 
 // ============================================
@@ -767,7 +1281,9 @@ if (micBtn) {
 function getNoteText() {
 
     if (!transcript) {
+
         return "";
+
     }
 
 
@@ -859,9 +1375,6 @@ async function translateText() {
         }
 
 
-        // IMPORTANT:
-        // Original text is NOT overwritten.
-
         translatedText.textContent =
             data.result;
 
@@ -912,7 +1425,10 @@ if (translateBtn) {
 // AI HELPER
 // ============================================
 
-async function callAI(endpoint, text) {
+async function callAI(
+    endpoint,
+    text
+) {
 
     if (!text) {
 
@@ -988,19 +1504,25 @@ function showAIResult(
     ) {
 
         const ul =
-            document.createElement("ul");
+            document.createElement(
+                "ul"
+            );
 
 
         result.forEach(
             point => {
 
                 const li =
-                    document.createElement("li");
+                    document.createElement(
+                        "li"
+                    );
 
                 li.textContent =
                     point;
 
-                ul.appendChild(li);
+                ul.appendChild(
+                    li
+                );
 
             }
         );
@@ -1013,7 +1535,9 @@ function showAIResult(
     } else {
 
         const p =
-            document.createElement("p");
+            document.createElement(
+                "p"
+            );
 
         p.textContent =
             result;
@@ -1292,9 +1816,11 @@ if (improveBtn) {
                 );
 
 
-                // Put improved note into editor
-
                 transcript.textContent =
+                    result;
+
+
+                finalTranscript =
                     result;
 
 
@@ -1475,6 +2001,7 @@ if (saveVoiceNote) {
 
                 clearNoteEditor();
 
+
                 latestSummary =
                     "";
 
@@ -1525,11 +2052,23 @@ if (saveVoiceNote) {
 
 function clearNoteEditor() {
 
-    transcript.textContent =
-        "";
+    resetSpeechState();
 
-    translatedText.textContent =
-        "";
+
+    if (transcript) {
+
+        transcript.textContent =
+            "";
+
+    }
+
+
+    if (translatedText) {
+
+        translatedText.textContent =
+            "";
+
+    }
 
 
     latestSummary =
@@ -1542,13 +2081,21 @@ function clearNoteEditor() {
         "";
 
 
-    aiResultBox.classList.add(
-        "hidden"
-    );
+    if (aiResultBox) {
+
+        aiResultBox.classList.add(
+            "hidden"
+        );
+
+    }
 
 
-    statusText.textContent =
-        "Ready for a new voice note.";
+    if (statusText) {
+
+        statusText.textContent =
+            "Ready for a new voice note.";
+
+    }
 
 }
 
@@ -1572,7 +2119,9 @@ async function displayNotes(
 ) {
 
     if (!token) {
+
         return;
+
     }
 
 
