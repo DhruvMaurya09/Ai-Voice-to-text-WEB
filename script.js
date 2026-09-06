@@ -1,6 +1,8 @@
 // ============================================
 // VOICENOTES - COMPLETE SCRIPT.JS
-// MOBILE SPEECH RECOGNITION FIXED
+// Modern UI + Title Modal + Full Note View
+// Toast Notifications + Password Toggle
+// Existing API / Auth / AI / Speech Preserved
 // ============================================
 
 
@@ -85,17 +87,139 @@ const searchInput =
 const themeBtn =
     document.getElementById("themeBtn");
 
+
+// ============================================
+// EDIT ELEMENTS
+// ============================================
+
 const editModal =
     document.getElementById("editModal");
 
 const editText =
     document.getElementById("editText");
 
+const editTitle =
+    document.getElementById("editTitle");
+
 const cancelEdit =
     document.getElementById("cancelEdit");
 
 const saveEdit =
     document.getElementById("saveEdit");
+
+
+// ============================================
+// TITLE MODAL
+// ============================================
+
+const titleModal =
+    document.getElementById("titleModal");
+
+const noteTitleInput =
+    document.getElementById("noteTitleInput");
+
+const cancelTitle =
+    document.getElementById("cancelTitle");
+
+const confirmSaveNote =
+    document.getElementById("confirmSaveNote");
+
+const titleCharacterCount =
+    document.getElementById(
+        "titleCharacterCount"
+    );
+
+
+// ============================================
+// FULL NOTE MODAL
+// ============================================
+
+const noteViewModal =
+    document.getElementById("noteViewModal");
+
+const fullNoteTitle =
+    document.getElementById("fullNoteTitle");
+
+const fullNoteDate =
+    document.getElementById("fullNoteDate");
+
+const fullNoteContent =
+    document.getElementById("fullNoteContent");
+
+const fullNoteSummarySection =
+    document.getElementById(
+        "fullNoteSummarySection"
+    );
+
+const fullNoteSummary =
+    document.getElementById(
+        "fullNoteSummary"
+    );
+
+const fullNoteKeyPointsSection =
+    document.getElementById(
+        "fullNoteKeyPointsSection"
+    );
+
+const fullNoteKeyPoints =
+    document.getElementById(
+        "fullNoteKeyPoints"
+    );
+
+const closeNoteView =
+    document.getElementById(
+        "closeNoteView"
+    );
+
+const noteMenuBtn =
+    document.getElementById(
+        "noteMenuBtn"
+    );
+
+const noteMenu =
+    document.getElementById(
+        "noteMenu"
+    );
+
+const fullNoteEdit =
+    document.getElementById(
+        "fullNoteEdit"
+    );
+
+const fullNoteDelete =
+    document.getElementById(
+        "fullNoteDelete"
+    );
+
+
+// ============================================
+// DELETE MODAL
+// ============================================
+
+const deleteModal =
+    document.getElementById(
+        "deleteModal"
+    );
+
+const cancelDelete =
+    document.getElementById(
+        "cancelDelete"
+    );
+
+const confirmDelete =
+    document.getElementById(
+        "confirmDelete"
+    );
+
+
+// ============================================
+// TOAST
+// ============================================
+
+const toastContainer =
+    document.getElementById(
+        "toastContainer"
+    );
 
 
 // ============================================
@@ -129,7 +253,9 @@ const closeAIResult =
 // ============================================
 
 let token =
-    localStorage.getItem("voiceNotesToken");
+    localStorage.getItem(
+        "voiceNotesToken"
+    );
 
 let currentUser = null;
 
@@ -138,7 +264,9 @@ try {
 
     currentUser =
         JSON.parse(
-            localStorage.getItem("voiceNotesUser")
+            localStorage.getItem(
+                "voiceNotesUser"
+            )
         ) || null;
 
 } catch (error) {
@@ -149,6 +277,10 @@ try {
 
 
 let currentEditId = null;
+
+let currentViewNote = null;
+
+let pendingDeleteId = null;
 
 
 // ============================================
@@ -163,6 +295,200 @@ let latestImprovedNote = "";
 
 
 // ============================================
+// TOAST NOTIFICATION SYSTEM
+// ============================================
+
+function showToast(
+    message,
+    type = "success",
+    title = ""
+) {
+
+    if (!toastContainer) {
+        return;
+    }
+
+
+    const toast =
+        document.createElement(
+            "div"
+        );
+
+
+    toast.className =
+        `toast toast-${type}`;
+
+
+    let icon = "✓";
+
+
+    if (type === "error") {
+        icon = "!";
+    }
+
+    if (type === "info") {
+        icon = "i";
+    }
+
+
+    if (!title) {
+
+        if (type === "success") {
+            title = "Success";
+        }
+
+        if (type === "error") {
+            title = "Something went wrong";
+        }
+
+        if (type === "info") {
+            title = "Information";
+        }
+
+    }
+
+
+    toast.innerHTML = `
+
+        <div class="toast-icon">
+            ${icon}
+        </div>
+
+        <div class="toast-content">
+
+            <div class="toast-title">
+                ${escapeHTML(title)}
+            </div>
+
+            <div class="toast-message">
+                ${escapeHTML(message)}
+            </div>
+
+        </div>
+
+        <button
+            class="toast-close"
+            type="button"
+            aria-label="Close notification"
+        >
+            ✕
+        </button>
+
+    `;
+
+
+    const closeButton =
+        toast.querySelector(
+            ".toast-close"
+        );
+
+
+    const removeToast = () => {
+
+        toast.classList.add(
+            "toast-out"
+        );
+
+
+        setTimeout(
+            () => {
+
+                toast.remove();
+
+            },
+            250
+        );
+
+    };
+
+
+    closeButton.addEventListener(
+        "click",
+        removeToast
+    );
+
+
+    toastContainer.appendChild(
+        toast
+    );
+
+
+    setTimeout(
+        removeToast,
+        4500
+    );
+
+}
+
+
+// ============================================
+// PASSWORD VISIBILITY
+// ============================================
+
+document
+    .querySelectorAll(
+        ".password-toggle"
+    )
+    .forEach(
+        button => {
+
+            button.addEventListener(
+                "click",
+                () => {
+
+                    const targetId =
+                        button.dataset.target;
+
+                    const input =
+                        document.getElementById(
+                            targetId
+                        );
+
+
+                    if (!input) {
+                        return;
+                    }
+
+
+                    const isPassword =
+                        input.type ===
+                        "password";
+
+
+                    input.type =
+                        isPassword
+                            ? "text"
+                            : "password";
+
+
+                    button.textContent =
+                        isPassword
+                            ? "🙈"
+                            : "👁️";
+
+
+                    button.setAttribute(
+                        "aria-label",
+                        isPassword
+                            ? "Hide password"
+                            : "Show password"
+                    );
+
+                    button.setAttribute(
+                        "title",
+                        isPassword
+                            ? "Hide password"
+                            : "Show password"
+                    );
+
+                }
+            );
+
+        }
+    );
+
+
+// ============================================
 // PAGE SWITCHING
 // ============================================
 
@@ -172,7 +498,9 @@ if (showRegister) {
         "click",
         () => {
 
-            loginPage.classList.add("hidden");
+            loginPage.classList.add(
+                "hidden"
+            );
 
             registerPage.classList.remove(
                 "hidden"
@@ -212,24 +540,35 @@ if (registerForm) {
 
     registerForm.addEventListener(
         "submit",
-        async (event) => {
+        async event => {
 
             event.preventDefault();
 
+
             const name =
-                document.getElementById(
-                    "registerName"
-                ).value.trim();
+                document
+                    .getElementById(
+                        "registerName"
+                    )
+                    .value
+                    .trim();
+
 
             const email =
-                document.getElementById(
-                    "registerEmail"
-                ).value.trim();
+                document
+                    .getElementById(
+                        "registerEmail"
+                    )
+                    .value
+                    .trim();
+
 
             const password =
-                document.getElementById(
-                    "registerPassword"
-                ).value;
+                document
+                    .getElementById(
+                        "registerPassword"
+                    )
+                    .value;
 
 
             try {
@@ -246,11 +585,12 @@ if (registerForm) {
                                     "application/json"
                             },
 
-                            body: JSON.stringify({
-                                name,
-                                email,
-                                password
-                            })
+                            body:
+                                JSON.stringify({
+                                    name,
+                                    email,
+                                    password
+                                })
 
                         }
                     );
@@ -270,12 +610,8 @@ if (registerForm) {
                 }
 
 
-                alert(
-                    "Account created successfully!"
-                );
-
-
                 registerForm.reset();
+
 
                 registerPage.classList.add(
                     "hidden"
@@ -286,6 +622,12 @@ if (registerForm) {
                 );
 
 
+                showToast(
+                    "Account created successfully. You can now login.",
+                    "success",
+                    "Account Created"
+                );
+
             } catch (error) {
 
                 console.error(
@@ -293,9 +635,12 @@ if (registerForm) {
                     error
                 );
 
-                alert(
+
+                showToast(
                     error.message ||
-                    "Registration failed."
+                    "Registration failed.",
+                    "error",
+                    "Registration Failed"
                 );
 
             }
@@ -314,20 +659,26 @@ if (loginForm) {
 
     loginForm.addEventListener(
         "submit",
-        async (event) => {
+        async event => {
 
             event.preventDefault();
 
 
             const email =
-                document.getElementById(
-                    "loginEmail"
-                ).value.trim();
+                document
+                    .getElementById(
+                        "loginEmail"
+                    )
+                    .value
+                    .trim();
+
 
             const password =
-                document.getElementById(
-                    "loginPassword"
-                ).value;
+                document
+                    .getElementById(
+                        "loginPassword"
+                    )
+                    .value;
 
 
             try {
@@ -344,10 +695,11 @@ if (loginForm) {
                                     "application/json"
                             },
 
-                            body: JSON.stringify({
-                                email,
-                                password
-                            })
+                            body:
+                                JSON.stringify({
+                                    email,
+                                    password
+                                })
 
                         }
                     );
@@ -370,6 +722,7 @@ if (loginForm) {
                 token =
                     data.token;
 
+
                 currentUser =
                     data.user || null;
 
@@ -390,8 +743,15 @@ if (loginForm) {
 
                 loginForm.reset();
 
+
                 showDashboard();
 
+
+                showToast(
+                    "You have been logged in successfully.",
+                    "success",
+                    "Login Successful"
+                );
 
             } catch (error) {
 
@@ -400,9 +760,12 @@ if (loginForm) {
                     error
                 );
 
-                alert(
+
+                showToast(
                     error.message ||
-                    "Login failed."
+                    "Login failed.",
+                    "error",
+                    "Login Failed"
                 );
 
             }
@@ -419,14 +782,23 @@ if (loginForm) {
 
 function showDashboard() {
 
-    loginPage.classList.add("hidden");
+    loginPage.classList.add(
+        "hidden"
+    );
 
-    registerPage.classList.add("hidden");
+    registerPage.classList.add(
+        "hidden"
+    );
 
-    dashboard.classList.remove("hidden");
+    dashboard.classList.remove(
+        "hidden"
+    );
 
 
-    if (welcomeUser && currentUser) {
+    if (
+        welcomeUser &&
+        currentUser
+    ) {
 
         welcomeUser.textContent =
             `Hello, ${currentUser.name} 👋`;
@@ -474,6 +846,13 @@ if (logoutBtn) {
                 "hidden"
             );
 
+
+            showToast(
+                "You have been logged out safely.",
+                "success",
+                "Logged Out"
+            );
+
         }
     );
 
@@ -482,7 +861,6 @@ if (logoutBtn) {
 
 // ============================================
 // SPEECH RECOGNITION
-// MOBILE RELIABLE VERSION
 // ============================================
 
 const SpeechRecognition =
@@ -573,23 +951,9 @@ function createRecognition() {
         new SpeechRecognition();
 
 
-    /*
-     * MOBILE FIX
-     *
-     * continuous = false
-     * is more reliable on mobile browsers.
-     */
-
     instance.continuous = false;
 
-
-    /*
-     * We only save final results.
-     * This prevents interim duplication.
-     */
-
     instance.interimResults = false;
-
 
     instance.maxAlternatives = 1;
 
@@ -642,7 +1006,7 @@ function createRecognition() {
     // ON RESULT
     // ========================================
 
-    instance.onresult = (event) => {
+    instance.onresult = event => {
 
         for (
             let i = event.resultIndex;
@@ -678,10 +1042,6 @@ function createRecognition() {
                 Date.now();
 
 
-            // ==================================
-            // DUPLICATE PROTECTION
-            // ==================================
-
             const exactDuplicate =
                 text === lastFinalText &&
                 (now - lastFinalTime) < 3000;
@@ -699,12 +1059,10 @@ function createRecognition() {
             }
 
 
-            // ==================================
-            // ADD FINAL TEXT
-            // ==================================
-
             finalTranscript +=
-                (finalTranscript ? " " : "") +
+                (finalTranscript
+                    ? " "
+                    : "") +
                 text;
 
 
@@ -714,10 +1072,6 @@ function createRecognition() {
             lastFinalTime =
                 now;
 
-
-            // ==================================
-            // UPDATE TRANSCRIPT
-            // ==================================
 
             if (transcript) {
 
@@ -735,7 +1089,7 @@ function createRecognition() {
     // ON ERROR
     // ========================================
 
-    instance.onerror = (event) => {
+    instance.onerror = event => {
 
         isStarting = false;
 
@@ -766,6 +1120,13 @@ function createRecognition() {
             }
 
 
+            showToast(
+                "Please allow microphone access in your browser.",
+                "error",
+                "Microphone Permission"
+            );
+
+
             return;
 
         }
@@ -782,6 +1143,13 @@ function createRecognition() {
                     "Speech network error. Check your internet.";
 
             }
+
+
+            showToast(
+                "Check your internet connection and try again.",
+                "error",
+                "Speech Network Error"
+            );
 
 
             return;
@@ -827,14 +1195,6 @@ function createRecognition() {
 
         isStarting = false;
 
-
-        /*
-         * Mobile browser may automatically
-         * end the recognition session.
-         *
-         * Start a fresh session if the
-         * user has not pressed Stop.
-         */
 
         if (shouldKeepRecording) {
 
@@ -908,7 +1268,7 @@ function scheduleRecognitionRestart() {
 
 
 // ============================================
-// START ONE RECOGNITION SESSION
+// START ONE SESSION
 // ============================================
 
 function startRecognitionSession() {
@@ -998,8 +1358,10 @@ function startRecording() {
 
     if (!SpeechRecognition) {
 
-        alert(
-            "Speech Recognition is not supported. Please use Google Chrome."
+        showToast(
+            "Speech Recognition is not supported. Please use Google Chrome.",
+            "error",
+            "Browser Not Supported"
         );
 
         return;
@@ -1017,8 +1379,6 @@ function startRecording() {
     }
 
 
-    // Fresh recording session
-
     finalTranscript = "";
 
     lastFinalText = "";
@@ -1028,10 +1388,6 @@ function startRecording() {
 
     shouldKeepRecording = true;
 
-
-    /*
-     * Start a new voice note.
-     */
 
     if (transcript) {
 
@@ -1189,11 +1545,15 @@ if (micBtn) {
         "click",
         () => {
 
-            if (!recognition &&
-                !SpeechRecognition) {
+            if (
+                !recognition &&
+                !SpeechRecognition
+            ) {
 
-                alert(
-                    "Please use Google Chrome."
+                showToast(
+                    "Please use Google Chrome.",
+                    "error",
+                    "Browser Not Supported"
                 );
 
                 return;
@@ -1304,8 +1664,10 @@ async function translateText() {
 
     if (!text) {
 
-        alert(
-            "Please speak or enter some text first."
+        showToast(
+            "Please speak or enter some text first.",
+            "error",
+            "No Text"
         );
 
         return;
@@ -1339,14 +1701,15 @@ async function translateText() {
                             "application/json"
                     },
 
-                    body: JSON.stringify({
+                    body:
+                        JSON.stringify({
 
-                        text,
+                            text,
 
-                        language:
-                            targetLanguage
+                            language:
+                                targetLanguage
 
-                    })
+                        })
 
                 }
             );
@@ -1383,6 +1746,12 @@ async function translateText() {
             `Translated to ${targetLanguage} successfully.`;
 
 
+        showToast(
+            `Your note was translated to ${targetLanguage}.`,
+            "success",
+            "Translation Complete"
+        );
+
     } catch (error) {
 
         console.error(
@@ -1395,11 +1764,12 @@ async function translateText() {
             "Translation failed.";
 
 
-        alert(
-            "Translation failed: " +
-            error.message
+        showToast(
+            error.message ||
+            "Translation failed.",
+            "error",
+            "Translation Failed"
         );
-
 
     } finally {
 
@@ -1453,9 +1823,10 @@ async function callAI(
 
                 },
 
-                body: JSON.stringify({
-                    text
-                })
+                body:
+                    JSON.stringify({
+                        text
+                    })
 
             }
         );
@@ -1517,8 +1888,10 @@ function showAIResult(
                         "li"
                     );
 
+
                 li.textContent =
                     point;
+
 
                 ul.appendChild(
                     li
@@ -1539,8 +1912,10 @@ function showAIResult(
                 "p"
             );
 
+
         p.textContent =
             result;
+
 
         aiResultContent.appendChild(
             p
@@ -1572,8 +1947,10 @@ if (summaryBtn) {
 
             if (!text) {
 
-                alert(
-                    "Please create a note first."
+                showToast(
+                    "Please create a note first.",
+                    "error",
+                    "No Note"
                 );
 
                 return;
@@ -1615,6 +1992,12 @@ if (summaryBtn) {
                     "AI summary generated successfully.";
 
 
+                showToast(
+                    "AI summary is ready.",
+                    "success",
+                    "Summary Generated"
+                );
+
             } catch (error) {
 
                 console.error(
@@ -1623,9 +2006,11 @@ if (summaryBtn) {
                 );
 
 
-                alert(
-                    "AI Summary failed: " +
-                    error.message
+                showToast(
+                    error.message ||
+                    "AI Summary failed.",
+                    "error",
+                    "AI Summary Failed"
                 );
 
 
@@ -1664,8 +2049,10 @@ if (keyPointsBtn) {
 
             if (!text) {
 
-                alert(
-                    "Please create a note first."
+                showToast(
+                    "Please create a note first.",
+                    "error",
+                    "No Note"
                 );
 
                 return;
@@ -1693,7 +2080,9 @@ if (keyPointsBtn) {
                     );
 
 
-                if (Array.isArray(result)) {
+                if (
+                    Array.isArray(result)
+                ) {
 
                     latestKeyPoints =
                         result;
@@ -1728,6 +2117,12 @@ if (keyPointsBtn) {
                     "Key points generated successfully.";
 
 
+                showToast(
+                    "Key points are ready.",
+                    "success",
+                    "Key Points Generated"
+                );
+
             } catch (error) {
 
                 console.error(
@@ -1736,9 +2131,11 @@ if (keyPointsBtn) {
                 );
 
 
-                alert(
-                    "AI Key Points failed: " +
-                    error.message
+                showToast(
+                    error.message ||
+                    "AI Key Points failed.",
+                    "error",
+                    "AI Key Points Failed"
                 );
 
 
@@ -1777,8 +2174,10 @@ if (improveBtn) {
 
             if (!text) {
 
-                alert(
-                    "Please create a note first."
+                showToast(
+                    "Please create a note first.",
+                    "error",
+                    "No Note"
                 );
 
                 return;
@@ -1828,6 +2227,12 @@ if (improveBtn) {
                     "Note improved successfully.";
 
 
+                showToast(
+                    "Your note has been improved with AI.",
+                    "success",
+                    "Note Improved"
+                );
+
             } catch (error) {
 
                 console.error(
@@ -1836,9 +2241,11 @@ if (improveBtn) {
                 );
 
 
-                alert(
-                    "AI Improve failed: " +
-                    error.message
+                showToast(
+                    error.message ||
+                    "AI Improve failed.",
+                    "error",
+                    "AI Improve Failed"
                 );
 
 
@@ -1882,14 +2289,153 @@ if (closeAIResult) {
 
 
 // ============================================
-// SAVE NOTE
+// OPEN TITLE MODAL
+// ============================================
+
+function openTitleModal() {
+
+    if (!titleModal) {
+        return;
+    }
+
+
+    noteTitleInput.value =
+        "";
+
+
+    updateTitleCharacterCount();
+
+
+    titleModal.classList.remove(
+        "hidden"
+    );
+
+
+    setTimeout(
+        () => {
+
+            noteTitleInput.focus();
+
+        },
+        100
+    );
+
+}
+
+
+// ============================================
+// CLOSE TITLE MODAL
+// ============================================
+
+function closeTitleModal() {
+
+    if (!titleModal) {
+        return;
+    }
+
+
+    titleModal.classList.add(
+        "hidden"
+    );
+
+
+    noteTitleInput.value =
+        "";
+
+}
+
+
+// ============================================
+// TITLE CHARACTER COUNT
+// ============================================
+
+function updateTitleCharacterCount() {
+
+    if (!noteTitleInput ||
+        !titleCharacterCount) {
+
+        return;
+
+    }
+
+
+    const length =
+        noteTitleInput.value.length;
+
+
+    titleCharacterCount.textContent =
+        `${length} / 100`;
+
+}
+
+
+if (noteTitleInput) {
+
+    noteTitleInput.addEventListener(
+        "input",
+        updateTitleCharacterCount
+    );
+
+
+    noteTitleInput.addEventListener(
+        "keydown",
+        event => {
+
+            if (
+                event.key ===
+                "Enter"
+            ) {
+
+                event.preventDefault();
+
+                saveNoteWithTitle();
+
+            }
+
+            if (
+                event.key ===
+                "Escape"
+            ) {
+
+                closeTitleModal();
+
+            }
+
+        }
+    );
+
+}
+
+
+if (cancelTitle) {
+
+    cancelTitle.addEventListener(
+        "click",
+        closeTitleModal
+    );
+
+}
+
+
+if (confirmSaveNote) {
+
+    confirmSaveNote.addEventListener(
+        "click",
+        saveNoteWithTitle
+    );
+
+}
+
+
+// ============================================
+// SAVE BUTTON
 // ============================================
 
 if (saveVoiceNote) {
 
     saveVoiceNote.addEventListener(
         "click",
-        async () => {
+        () => {
 
             const originalText =
                 getNoteText();
@@ -1897,8 +2443,10 @@ if (saveVoiceNote) {
 
             if (!originalText) {
 
-                alert(
-                    "Please create a voice note first."
+                showToast(
+                    "Please create a voice note first.",
+                    "error",
+                    "No Note"
                 );
 
                 return;
@@ -1908,8 +2456,10 @@ if (saveVoiceNote) {
 
             if (!token) {
 
-                alert(
-                    "Please login first."
+                showToast(
+                    "Please login first.",
+                    "error",
+                    "Login Required"
                 );
 
                 return;
@@ -1917,131 +2467,223 @@ if (saveVoiceNote) {
             }
 
 
-            let content =
-                originalText;
-
-
-            const translated =
-                translatedText
-                    ? translatedText.textContent.trim()
-                    : "";
-
-
-            if (translated) {
-
-                content +=
-                    `\n\nTranslation (${languageSelect.value}):\n${translated}`;
-
-            }
-
-
-            try {
-
-                saveVoiceNote.disabled =
-                    true;
-
-
-                const response =
-                    await fetch(
-                        `${API_URL}/notes`,
-                        {
-
-                            method: "POST",
-
-                            headers: {
-
-                                "Content-Type":
-                                    "application/json",
-
-                                "Authorization":
-                                    `Bearer ${token}`
-
-                            },
-
-                            body: JSON.stringify({
-
-                                title:
-                                    "Voice Note",
-
-                                content,
-
-                                category:
-                                    "Personal",
-
-                                language:
-                                    speechLanguage
-                                        ? speechLanguage.value
-                                        : "English",
-
-                                summary:
-                                    latestSummary,
-
-                                keyPoints:
-                                    latestKeyPoints
-
-                            })
-
-                        }
-                    );
-
-
-                const data =
-                    await response.json();
-
-
-                if (!response.ok) {
-
-                    throw new Error(
-                        data.message ||
-                        "Could not save note."
-                    );
-
-                }
-
-
-                clearNoteEditor();
-
-
-                latestSummary =
-                    "";
-
-                latestKeyPoints =
-                    [];
-
-                latestImprovedNote =
-                    "";
-
-
-                displayNotes();
-
-
-                alert(
-                    "Note saved successfully!"
-                );
-
-
-            } catch (error) {
-
-                console.error(
-                    "Save note error:",
-                    error
-                );
-
-
-                alert(
-                    error.message ||
-                    "Could not save note."
-                );
-
-            } finally {
-
-                saveVoiceNote.disabled =
-                    false;
-
-            }
+            openTitleModal();
 
         }
     );
+
+}
+
+
+// ============================================
+// SAVE NOTE WITH TITLE
+// ============================================
+
+async function saveNoteWithTitle() {
+
+    const originalText =
+        getNoteText();
+
+
+    if (!originalText) {
+
+        closeTitleModal();
+
+        showToast(
+            "Please create a voice note first.",
+            "error",
+            "No Note"
+        );
+
+        return;
+
+    }
+
+
+    if (!token) {
+
+        closeTitleModal();
+
+        showToast(
+            "Please login first.",
+            "error",
+            "Login Required"
+        );
+
+        return;
+
+    }
+
+
+    const title =
+        noteTitleInput
+            ? noteTitleInput.value.trim()
+            : "";
+
+
+    if (!title) {
+
+        showToast(
+            "Please enter a title before saving.",
+            "error",
+            "Title Required"
+        );
+
+
+        if (noteTitleInput) {
+
+            noteTitleInput.focus();
+
+        }
+
+
+        return;
+
+    }
+
+
+    const translated =
+        translatedText
+            ? translatedText.textContent.trim()
+            : "";
+
+
+    let content =
+        originalText;
+
+
+    if (translated) {
+
+        content +=
+            `\n\nTranslation (${languageSelect.value}):\n${translated}`;
+
+    }
+
+
+    try {
+
+        if (confirmSaveNote) {
+
+            confirmSaveNote.disabled =
+                true;
+
+            confirmSaveNote.textContent =
+                "⏳ Saving...";
+
+        }
+
+
+        const response =
+            await fetch(
+                `${API_URL}/notes`,
+                {
+
+                    method: "POST",
+
+                    headers: {
+
+                        "Content-Type":
+                            "application/json",
+
+                        "Authorization":
+                            `Bearer ${token}`
+
+                    },
+
+                    body:
+                        JSON.stringify({
+
+                            title,
+
+                            content,
+
+                            category:
+                                "Personal",
+
+                            language:
+                                speechLanguage
+                                    ? speechLanguage.value
+                                    : "English",
+
+                            summary:
+                                latestSummary,
+
+                            keyPoints:
+                                latestKeyPoints
+
+                        })
+
+                }
+            );
+
+
+        const data =
+            await response.json();
+
+
+        if (!response.ok) {
+
+            throw new Error(
+                data.message ||
+                "Could not save note."
+            );
+
+        }
+
+
+        closeTitleModal();
+
+
+        clearNoteEditor();
+
+
+        latestSummary =
+            "";
+
+        latestKeyPoints =
+            [];
+
+        latestImprovedNote =
+            "";
+
+
+        await displayNotes();
+
+
+        showToast(
+            `"${title}" has been saved successfully.`,
+            "success",
+            "Note Saved"
+        );
+
+    } catch (error) {
+
+        console.error(
+            "Save note error:",
+            error
+        );
+
+
+        showToast(
+            error.message ||
+            "Could not save note.",
+            "error",
+            "Save Failed"
+        );
+
+    } finally {
+
+        if (confirmSaveNote) {
+
+            confirmSaveNote.disabled =
+                false;
+
+            confirmSaveNote.textContent =
+                "💾 Save Note";
+
+        }
+
+    }
 
 }
 
@@ -2104,7 +2746,17 @@ if (clearTranscript) {
 
     clearTranscript.addEventListener(
         "click",
-        clearNoteEditor
+        () => {
+
+            clearNoteEditor();
+
+            showToast(
+                "The note editor has been cleared.",
+                "success",
+                "Editor Cleared"
+            );
+
+        }
     );
 
 }
@@ -2187,7 +2839,7 @@ async function displayNotes(
 
 
         notes.forEach(
-            note => {
+            (note, index) => {
 
                 const card =
                     document.createElement(
@@ -2199,22 +2851,32 @@ async function displayNotes(
                     "note-card";
 
 
+                card.setAttribute(
+                    "role",
+                    "button"
+                );
+
+
+                card.setAttribute(
+                    "tabindex",
+                    "0"
+                );
+
+
                 const title =
-                    escapeHTML(
-                        note.title ||
-                        "Voice Note"
-                    );
+                    note.title ||
+                    "Voice Note";
 
 
                 const content =
-                    escapeHTML(
-                        note.content ||
-                        ""
-                    )
-                        .replace(
-                            /\n/g,
-                            "<br>"
-                        );
+                    note.content ||
+                    "";
+
+
+                const preview =
+                    getPreviewText(
+                        content
+                    );
 
 
                 const date =
@@ -2225,108 +2887,73 @@ async function displayNotes(
                         : "";
 
 
-                let summaryHTML =
-                    "";
-
-
-                if (note.summary) {
-
-                    summaryHTML = `
-
-                        <div class="saved-ai-section">
-
-                            <strong>
-                                📝 Summary
-                            </strong>
-
-                            <p>
-                                ${escapeHTML(
-                                    note.summary
-                                )}
-                            </p>
-
-                        </div>
-
-                    `;
-
-                }
-
-
-                let keyPointsHTML =
-                    "";
-
-
-                if (
-                    Array.isArray(
-                        note.keyPoints
-                    ) &&
-                    note.keyPoints.length
-                ) {
-
-                    keyPointsHTML = `
-
-                        <div class="saved-ai-section">
-
-                            <strong>
-                                🔑 Key Points
-                            </strong>
-
-                            <ul>
-
-                                ${note.keyPoints
-                                    .map(
-                                        point =>
-                                            `<li>${escapeHTML(point)}</li>`
-                                    )
-                                    .join("")
-                                }
-
-                            </ul>
-
-                        </div>
-
-                    `;
-
-                }
+                const language =
+                    note.language ||
+                    "English";
 
 
                 card.innerHTML = `
 
                     <h3>
-                        🎙️ ${title}
+                        🎙️ ${escapeHTML(title)}
                     </h3>
 
-                    <p class="note-content">
-                        ${content}
+                    <p class="note-preview">
+                        ${escapeHTML(preview)}
                     </p>
 
-                    ${summaryHTML}
+                    <div class="note-card-meta">
 
-                    ${keyPointsHTML}
+                        <span class="note-date">
+                            📅 ${escapeHTML(date)}
+                        </span>
 
-                    <div class="note-date">
-                        ${date}
-                    </div>
-
-                    <div class="note-actions">
-
-                        <button
-                            class="edit-btn"
-                            onclick="openEdit('${note._id}')"
-                        >
-                            ✏️ Edit
-                        </button>
-
-                        <button
-                            class="delete-btn"
-                            onclick="deleteNote('${note._id}')"
-                        >
-                            🗑️ Delete
-                        </button>
+                        <span class="note-language">
+                            ${escapeHTML(language)}
+                        </span>
 
                     </div>
 
                 `;
+
+
+                card.style.animationDelay =
+                    `${Math.min(index * 0.035, 0.3)}s`;
+
+
+                card.addEventListener(
+                    "click",
+                    () => {
+
+                        openFullNote(
+                            note
+                        );
+
+                    }
+                );
+
+
+                card.addEventListener(
+                    "keydown",
+                    event => {
+
+                        if (
+                            event.key ===
+                                "Enter" ||
+                            event.key ===
+                                " "
+                        ) {
+
+                            event.preventDefault();
+
+                            openFullNote(
+                                note
+                            );
+
+                        }
+
+                    }
+                );
 
 
                 notesContainer.appendChild(
@@ -2344,7 +2971,46 @@ async function displayNotes(
             error
         );
 
+
+        showToast(
+            "Unable to load your notes.",
+            "error",
+            "Notes Loading Failed"
+        );
+
     }
+
+}
+
+
+// ============================================
+// PREVIEW TEXT
+// ============================================
+
+function getPreviewText(
+    content
+) {
+
+    if (!content) {
+        return "No content available.";
+    }
+
+
+    return String(content)
+        .replace(
+            /Translation\s*\([^)]*\):[\s\S]*$/i,
+            ""
+        )
+        .replace(
+            /\s+/g,
+            " "
+        )
+        .trim()
+        .slice(
+            0,
+            180
+        ) ||
+        "No content available.";
 
 }
 
@@ -2370,85 +3036,200 @@ if (searchInput) {
 
 
 // ============================================
-// DELETE
+// OPEN FULL NOTE
 // ============================================
 
-async function deleteNote(id) {
+function openFullNote(note) {
 
-    if (!token) {
-
-        alert(
-            "Please login first."
-        );
-
+    if (!noteViewModal) {
         return;
+    }
+
+
+    currentViewNote =
+        note;
+
+
+    if (fullNoteTitle) {
+
+        fullNoteTitle.textContent =
+            note.title ||
+            "Voice Note";
+
+    }
+
+
+    if (fullNoteDate) {
+
+        fullNoteDate.textContent =
+            note.createdAt
+                ? new Date(
+                    note.createdAt
+                ).toLocaleString()
+                : "";
+
+    }
+
+
+    if (fullNoteContent) {
+
+        fullNoteContent.textContent =
+            note.content ||
+            "";
 
     }
 
 
     if (
-        !confirm(
-            "Are you sure you want to delete this note?"
-        )
+        fullNoteSummarySection &&
+        fullNoteSummary
     ) {
 
-        return;
+        if (note.summary) {
+
+            fullNoteSummary.textContent =
+                note.summary;
+
+            fullNoteSummarySection.classList.remove(
+                "hidden"
+            );
+
+        } else {
+
+            fullNoteSummarySection.classList.add(
+                "hidden"
+            );
+
+        }
 
     }
 
 
-    try {
+    if (
+        fullNoteKeyPointsSection &&
+        fullNoteKeyPoints
+    ) {
 
-        const response =
-            await fetch(
-                `${API_URL}/notes/${id}`,
-                {
+        fullNoteKeyPoints.innerHTML =
+            "";
 
-                    method: "DELETE",
 
-                    headers: {
+        if (
+            Array.isArray(
+                note.keyPoints
+            ) &&
+            note.keyPoints.length
+        ) {
 
-                        Authorization:
-                            `Bearer ${token}`
+            note.keyPoints.forEach(
+                point => {
 
-                    }
+                    const li =
+                        document.createElement(
+                            "li"
+                        );
+
+
+                    li.textContent =
+                        point;
+
+
+                    fullNoteKeyPoints.appendChild(
+                        li
+                    );
 
                 }
             );
 
 
-        const data =
-            await response.json();
+            fullNoteKeyPointsSection.classList.remove(
+                "hidden"
+            );
 
+        } else {
 
-        if (!response.ok) {
-
-            throw new Error(
-                data.message ||
-                "Delete failed."
+            fullNoteKeyPointsSection.classList.add(
+                "hidden"
             );
 
         }
 
+    }
 
-        displayNotes(
-            searchInput
-                ? searchInput.value.trim()
-                : ""
+
+    closeNoteMenu();
+
+
+    noteViewModal.classList.remove(
+        "hidden"
+    );
+
+}
+
+
+// ============================================
+// CLOSE FULL NOTE
+// ============================================
+
+function closeFullNote() {
+
+    if (noteViewModal) {
+
+        noteViewModal.classList.add(
+            "hidden"
         );
 
-
-    } catch (error) {
-
-        console.error(
-            "Delete error:",
-            error
-        );
+    }
 
 
-        alert(
-            error.message ||
-            "Delete failed."
+    closeNoteMenu();
+
+
+    currentViewNote =
+        null;
+
+}
+
+
+if (closeNoteView) {
+
+    closeNoteView.addEventListener(
+        "click",
+        closeFullNote
+    );
+
+}
+
+
+// ============================================
+// THREE DOT MENU
+// ============================================
+
+if (noteMenuBtn) {
+
+    noteMenuBtn.addEventListener(
+        "click",
+        event => {
+
+            event.stopPropagation();
+
+
+            noteMenu.classList.toggle(
+                "hidden"
+            );
+
+        }
+    );
+
+}
+
+
+function closeNoteMenu() {
+
+    if (noteMenu) {
+
+        noteMenu.classList.add(
+            "hidden"
         );
 
     }
@@ -2456,8 +3237,53 @@ async function deleteNote(id) {
 }
 
 
-window.deleteNote =
-    deleteNote;
+document.addEventListener(
+    "click",
+    event => {
+
+        if (
+            noteMenu &&
+            noteMenuBtn &&
+            !noteMenu.contains(event.target) &&
+            !noteMenuBtn.contains(event.target)
+        ) {
+
+            closeNoteMenu();
+
+        }
+
+    }
+);
+
+
+// ============================================
+// FULL NOTE EDIT
+// ============================================
+
+if (fullNoteEdit) {
+
+    fullNoteEdit.addEventListener(
+        "click",
+        () => {
+
+            closeNoteMenu();
+
+
+            if (!currentViewNote) {
+
+                return;
+
+            }
+
+
+            openEdit(
+                currentViewNote._id
+            );
+
+        }
+    );
+
+}
 
 
 // ============================================
@@ -2468,8 +3294,10 @@ async function openEdit(id) {
 
     if (!token) {
 
-        alert(
-            "Please login first."
+        showToast(
+            "Please login first.",
+            "error",
+            "Login Required"
         );
 
         return;
@@ -2518,8 +3346,10 @@ async function openEdit(id) {
 
         if (!note) {
 
-            alert(
-                "Note not found."
+            showToast(
+                "The selected note could not be found.",
+                "error",
+                "Note Not Found"
             );
 
             return;
@@ -2531,14 +3361,54 @@ async function openEdit(id) {
             id;
 
 
-        editText.value =
-            note.content || "";
+        if (editTitle) {
+
+            editTitle.value =
+                note.title ||
+                "Voice Note";
+
+        }
 
 
-        editModal.classList.remove(
-            "hidden"
+        if (editText) {
+
+            editText.value =
+                note.content ||
+                "";
+
+        }
+
+
+        if (editModal) {
+
+            editModal.classList.remove(
+                "hidden"
+            );
+
+        }
+
+
+        if (noteViewModal) {
+
+            noteViewModal.classList.add(
+                "hidden"
+            );
+
+        }
+
+
+        setTimeout(
+            () => {
+
+                if (editTitle) {
+
+                    editTitle.focus();
+
+                }
+
+            },
+            100
         );
-
 
     } catch (error) {
 
@@ -2548,8 +3418,11 @@ async function openEdit(id) {
         );
 
 
-        alert(
-            "Unable to open note."
+        showToast(
+            error.message ||
+            "Unable to open note.",
+            "error",
+            "Edit Failed"
         );
 
     }
@@ -2575,11 +3448,36 @@ if (saveEdit) {
                 editText.value.trim();
 
 
+            const title =
+                editTitle
+                    ? editTitle.value.trim()
+                    : "";
+
+
+            if (!title) {
+
+                showToast(
+                    "Note title cannot be empty.",
+                    "error",
+                    "Title Required"
+                );
+
+                editTitle.focus();
+
+                return;
+
+            }
+
+
             if (!content) {
 
-                alert(
-                    "Note cannot be empty."
+                showToast(
+                    "Note content cannot be empty.",
+                    "error",
+                    "Content Required"
                 );
+
+                editText.focus();
 
                 return;
 
@@ -2588,8 +3486,10 @@ if (saveEdit) {
 
             if (!currentEditId) {
 
-                alert(
-                    "No note selected."
+                showToast(
+                    "No note selected.",
+                    "error",
+                    "Edit Error"
                 );
 
                 return;
@@ -2598,6 +3498,23 @@ if (saveEdit) {
 
 
             try {
+
+                saveEdit.disabled =
+                    true;
+
+                saveEdit.textContent =
+                    "⏳ Saving...";
+
+
+                /*
+                 * We send both title and content.
+                 *
+                 * If your backend already accepts
+                 * title updates, both will be updated.
+                 *
+                 * If your backend only accepts content,
+                 * content will still work.
+                 */
 
                 const response =
                     await fetch(
@@ -2616,9 +3533,14 @@ if (saveEdit) {
 
                             },
 
-                            body: JSON.stringify({
-                                content
-                            })
+                            body:
+                                JSON.stringify({
+
+                                    title,
+
+                                    content
+
+                                })
 
                         }
                     );
@@ -2638,21 +3560,31 @@ if (saveEdit) {
                 }
 
 
-                editModal.classList.add(
-                    "hidden"
-                );
+                if (editModal) {
+
+                    editModal.classList.add(
+                        "hidden"
+                    );
+
+                }
 
 
                 currentEditId =
                     null;
 
 
-                displayNotes(
+                await displayNotes(
                     searchInput
                         ? searchInput.value.trim()
                         : ""
                 );
 
+
+                showToast(
+                    "Your note has been updated successfully.",
+                    "success",
+                    "Note Updated"
+                );
 
             } catch (error) {
 
@@ -2662,10 +3594,20 @@ if (saveEdit) {
                 );
 
 
-                alert(
+                showToast(
                     error.message ||
-                    "Update failed."
+                    "Update failed.",
+                    "error",
+                    "Update Failed"
                 );
+
+            } finally {
+
+                saveEdit.disabled =
+                    false;
+
+                saveEdit.textContent =
+                    "✓ Save Changes";
 
             }
 
@@ -2696,6 +3638,370 @@ if (cancelEdit) {
     );
 
 }
+
+
+// ============================================
+// FULL NOTE DELETE
+// ============================================
+
+if (fullNoteDelete) {
+
+    fullNoteDelete.addEventListener(
+        "click",
+        () => {
+
+            closeNoteMenu();
+
+
+            if (!currentViewNote) {
+
+                return;
+
+            }
+
+
+            pendingDeleteId =
+                currentViewNote._id;
+
+
+            if (noteViewModal) {
+
+                noteViewModal.classList.add(
+                    "hidden"
+                );
+
+            }
+
+
+            if (deleteModal) {
+
+                deleteModal.classList.remove(
+                    "hidden"
+                );
+
+            }
+
+        }
+    );
+
+}
+
+
+// ============================================
+// CONFIRM DELETE
+// ============================================
+
+if (confirmDelete) {
+
+    confirmDelete.addEventListener(
+        "click",
+        async () => {
+
+            if (!pendingDeleteId) {
+
+                return;
+
+            }
+
+
+            try {
+
+                confirmDelete.disabled =
+                    true;
+
+                confirmDelete.textContent =
+                    "⏳ Deleting...";
+
+
+                const id =
+                    pendingDeleteId;
+
+
+                const response =
+                    await fetch(
+                        `${API_URL}/notes/${id}`,
+                        {
+
+                            method: "DELETE",
+
+                            headers: {
+
+                                Authorization:
+                                    `Bearer ${token}`
+
+                            }
+
+                        }
+                    );
+
+
+                const data =
+                    await response.json();
+
+
+                if (!response.ok) {
+
+                    throw new Error(
+                        data.message ||
+                        "Delete failed."
+                    );
+
+                }
+
+
+                if (deleteModal) {
+
+                    deleteModal.classList.add(
+                        "hidden"
+                    );
+
+                }
+
+
+                pendingDeleteId =
+                    null;
+
+                currentViewNote =
+                    null;
+
+
+                await displayNotes(
+                    searchInput
+                        ? searchInput.value.trim()
+                        : ""
+                );
+
+
+                showToast(
+                    "The note has been permanently deleted.",
+                    "success",
+                    "Note Deleted"
+                );
+
+            } catch (error) {
+
+                console.error(
+                    "Delete error:",
+                    error
+                );
+
+
+                showToast(
+                    error.message ||
+                    "Delete failed.",
+                    "error",
+                    "Delete Failed"
+                );
+
+            } finally {
+
+                confirmDelete.disabled =
+                    false;
+
+                confirmDelete.textContent =
+                    "🗑️ Delete";
+
+            }
+
+        }
+    );
+
+}
+
+
+// ============================================
+// CANCEL DELETE
+// ============================================
+
+if (cancelDelete) {
+
+    cancelDelete.addEventListener(
+        "click",
+        () => {
+
+            deleteModal.classList.add(
+                "hidden"
+            );
+
+            pendingDeleteId =
+                null;
+
+        }
+    );
+
+}
+
+
+// ============================================
+// BACKDROP CLICK TO CLOSE MODALS
+// ============================================
+
+[
+    titleModal,
+    noteViewModal,
+    editModal,
+    deleteModal
+].forEach(
+    modal => {
+
+        if (!modal) {
+            return;
+        }
+
+
+        modal.addEventListener(
+            "click",
+            event => {
+
+                if (
+                    event.target !==
+                    modal
+                ) {
+
+                    return;
+
+                }
+
+
+                if (
+                    modal ===
+                    titleModal
+                ) {
+
+                    closeTitleModal();
+
+                }
+
+
+                if (
+                    modal ===
+                    noteViewModal
+                ) {
+
+                    closeFullNote();
+
+                }
+
+
+                if (
+                    modal ===
+                    editModal
+                ) {
+
+                    editModal.classList.add(
+                        "hidden"
+                    );
+
+                    currentEditId =
+                        null;
+
+                }
+
+
+                if (
+                    modal ===
+                    deleteModal
+                ) {
+
+                    deleteModal.classList.add(
+                        "hidden"
+                    );
+
+                    pendingDeleteId =
+                        null;
+
+                }
+
+            }
+        );
+
+    }
+);
+
+
+// ============================================
+// ESCAPE KEY
+// ============================================
+
+document.addEventListener(
+    "keydown",
+    event => {
+
+        if (
+            event.key !==
+            "Escape"
+        ) {
+
+            return;
+
+        }
+
+
+        if (
+            titleModal &&
+            !titleModal.classList.contains(
+                "hidden"
+            )
+        ) {
+
+            closeTitleModal();
+
+            return;
+
+        }
+
+
+        if (
+            deleteModal &&
+            !deleteModal.classList.contains(
+                "hidden"
+            )
+        ) {
+
+            deleteModal.classList.add(
+                "hidden"
+            );
+
+            pendingDeleteId =
+                null;
+
+            return;
+
+        }
+
+
+        if (
+            editModal &&
+            !editModal.classList.contains(
+                "hidden"
+            )
+        ) {
+
+            editModal.classList.add(
+                "hidden"
+            );
+
+            currentEditId =
+                null;
+
+            return;
+
+        }
+
+
+        if (
+            noteViewModal &&
+            !noteViewModal.classList.contains(
+                "hidden"
+            )
+        ) {
+
+            closeFullNote();
+
+        }
+
+    }
+);
 
 
 // ============================================
@@ -2739,8 +4045,9 @@ if (themeBtn) {
 
 
 if (
-    localStorage.getItem("theme") ===
-    "dark"
+    localStorage.getItem(
+        "theme"
+    ) === "dark"
 ) {
 
     document.body.classList.add(
