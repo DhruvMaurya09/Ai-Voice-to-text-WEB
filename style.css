@@ -3276,3 +3276,30 @@ body.dark .toast-close {
     }
 
 }
+/* Fix Login & Register input visibility */
+.auth-card input,
+.auth-card input[type="email"],
+.auth-card input[type="password"],
+.password-field input {
+    background: #ffffff !important;
+    color: #111827 !important;
+    border: 1px solid #d1d5db !important;
+}
+
+.auth-card input::placeholder,
+.password-field input::placeholder {
+    color: #6b7280 !important;
+    opacity: 1 !important;
+}
+
+/* Fix Chrome/Brave autofill */
+.auth-card input:-webkit-autofill,
+.auth-card input:-webkit-autofill:hover,
+.auth-card input:-webkit-autofill:focus,
+.password-field input:-webkit-autofill,
+.password-field input:-webkit-autofill:hover,
+.password-field input:-webkit-autofill:focus {
+    -webkit-text-fill-color: #111827 !important;
+    box-shadow: 0 0 0 1000px #ffffff inset !important;
+    background-color: #ffffff !important;
+}
