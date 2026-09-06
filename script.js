@@ -989,70 +989,65 @@ function createRecognition() {
         );
     };
 
+// =====================================================
+// ON RESULT
+// =====================================================
 
-    // =====================================================
-    // ON RESULT
-    // =====================================================
+instance.onresult = (event) => {
 
-    instance.onresult = (event) => {
+    let currentInterim = "";
 
-        let currentInterim = "";
+    for (
+        let i = event.resultIndex;
+        i < event.results.length;
+        i++
+    ) {
 
-        for (
-            let i = event.resultIndex;
-            i < event.results.length;
-            i++
-        ) {
+        const result = event.results[i];
 
-            const result = event.results[i];
+        if (!result || !result[0]) {
+            continue;
+        }
 
-            if (!result || !result[0]) {
-                continue;
-            }
+        const text =
+            result[0].transcript.trim();
 
-            const text =
-                result[0].transcript.trim();
-
-            if (!text) {
-                continue;
-            }
-
-
-            // ---------------------------------------------
-            // FINAL RESULT
-            // ---------------------------------------------
-
-            if (result.isFinal) {
-
-                finalTranscript +=
-                    (finalTranscript ? " " : "") +
-                    text;
-
-                console.log(
-                    "Final speech:",
-                    text
-                );
-            }
-
-
-            // ---------------------------------------------
-            // INTERIM RESULT
-            // ---------------------------------------------
-
-            else {
-
-                currentInterim +=
-                    (currentInterim ? " " : "") +
-                    text;
-            }
+        if (!text) {
+            continue;
         }
 
 
-        interimTranscript = currentInterim;
+        // FINAL SPEECH
+        if (result.isFinal) {
 
-        updateTranscriptDisplay();
-    };
+            finalTranscript +=
+                (finalTranscript ? " " : "") +
+                text;
 
+            console.log(
+                "Final speech:",
+                text
+            );
+        }
+
+
+        // LIVE / INTERIM SPEECH
+        else {
+
+            currentInterim +=
+                (currentInterim ? " " : "") +
+                text;
+        }
+    }
+
+
+    interimTranscript =
+        currentInterim;
+
+    updateTranscriptDisplay();
+};
+    
+    
 
     // =====================================================
     // ON ERROR
@@ -1177,60 +1172,62 @@ function createRecognition() {
         }
     };
 
+// =====================================================
+// ON END
+// =====================================================
 
-    // =====================================================
-    // ON END
-    // =====================================================
+instance.onend = () => {
 
-    instance.onend = () => {
+    isStarting = false;
 
-        isStarting = false;
-
-        console.log(
-            "Speech recognition ended."
-        );
-
-
-        /*
-         * IMPORTANT:
-         *
-         * If user has NOT pressed Stop,
-         * automatically start recognition again.
-         *
-         * This helps browsers/mobile devices that
-         * automatically terminate SpeechRecognition.
-         */
-
-        if (shouldKeepRecording) {
-
-            scheduleRecognitionRestart(250);
-
-            return;
-        }
+    console.log(
+        "Speech recognition ended."
+    );
 
 
-        // User actually stopped recording.
+    /*
+     * User ne STOP nahi dabaya hai,
+     * to recording continue rakho.
+     */
 
-        isRecording = false;
+    if (shouldKeepRecording) {
 
-        interimTranscript = "";
-
-        updateTranscriptDisplay();
+        isRecording = true;
 
         if (micBtn) {
-            micBtn.classList.remove("recording");
+            micBtn.classList.add("recording");
         }
 
         if (recordingText) {
             recordingText.textContent =
-                "Start Recording";
+                "Listening...";
         }
-    };
+
+        scheduleRecognitionRestart(300);
+
+        return;
+    }
 
 
-    return instance;
-}
+    // User actually stopped recording
 
+    isRecording = false;
+
+    interimTranscript = "";
+
+    updateTranscriptDisplay();
+
+    if (micBtn) {
+        micBtn.classList.remove("recording");
+    }
+
+    if (recordingText) {
+        recordingText.textContent =
+            "Start Recording";
+    }
+};
+
+    
 
 // =========================================================
 // AUTOMATIC RESTART
@@ -1260,7 +1257,6 @@ function scheduleRecognitionRestart(delay = 250) {
     }, delay);
 }
 
-
 // =========================================================
 // START RECOGNITION SESSION
 // =========================================================
@@ -1275,32 +1271,37 @@ function startRecognitionSession() {
         return;
     }
 
-
     /*
-     * If an old recognition object exists but is no longer
-     * active, create a fresh one.
+     * IMPORTANT:
+     * Do NOT abort the existing recognition here.
+     * This function is called again only when the browser
+     * has ended the previous session.
      */
 
     if (recognition) {
-
         try {
-            recognition.onend = null;
-            recognition.onerror = null;
-            recognition.onresult = null;
-            recognition.onstart = null;
+            recognition.lang = getRecognitionLanguage();
+            isStarting = true;
+            recognition.start();
 
-            recognition.abort();
+            console.log("Recognition restarted.");
+
+            return;
 
         } catch (error) {
-            console.log(
-                "Previous recognition already stopped."
-            );
-        }
 
-        recognition = null;
+            console.log(
+                "Existing recognition could not restart:",
+                error
+            );
+
+            recognition = null;
+            isStarting = false;
+        }
     }
 
 
+    // Create a new recognition instance only when needed
     recognition = createRecognition();
 
     if (!recognition) {
@@ -1337,17 +1338,12 @@ function startRecognitionSession() {
             error
         );
 
-
-        /*
-         * Browser may throw "already started".
-         * Don't kill the recording.
-         */
-
         if (shouldKeepRecording) {
-            scheduleRecognitionRestart(500);
+            scheduleRecognitionRestart(700);
         }
     }
 }
+
 
 
 // =========================================================
