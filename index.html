@@ -24,6 +24,10 @@
                 🎙️ VoiceNotes
             </div>
 
+            <div class="welcome-badge">
+                ✨ WELCOME BACK
+            </div>
+
             <h1>Welcome Back</h1>
 
             <p class="subtitle">
@@ -47,12 +51,26 @@
                     Password
                 </label>
 
-                <input
-                    type="password"
-                    id="loginPassword"
-                    placeholder="Enter your password"
-                    required
-                >
+                <div class="password-wrapper">
+
+                    <input
+                        type="password"
+                        id="loginPassword"
+                        placeholder="Enter your password"
+                        required
+                    >
+
+                    <button
+                        type="button"
+                        class="password-toggle"
+                        data-target="loginPassword"
+                        aria-label="Show password"
+                        title="Show password"
+                    >
+                        👁️
+                    </button>
+
+                </div>
 
                 <button
                     type="submit"
@@ -96,10 +114,14 @@
                 🎙️ VoiceNotes
             </div>
 
+            <div class="welcome-badge">
+                🚀 GET STARTED
+            </div>
+
             <h1>Create Account</h1>
 
             <p class="subtitle">
-                Start creating voice notes
+                Start creating smart AI-powered voice notes
             </p>
 
             <form id="registerForm">
@@ -130,12 +152,26 @@
                     Password
                 </label>
 
-                <input
-                    type="password"
-                    id="registerPassword"
-                    placeholder="Create password"
-                    required
-                >
+                <div class="password-wrapper">
+
+                    <input
+                        type="password"
+                        id="registerPassword"
+                        placeholder="Create password"
+                        required
+                    >
+
+                    <button
+                        type="button"
+                        class="password-toggle"
+                        data-target="registerPassword"
+                        aria-label="Show password"
+                        title="Show password"
+                    >
+                        👁️
+                    </button>
+
+                </div>
 
                 <button
                     type="submit"
@@ -217,12 +253,17 @@
 
                 <div>
 
+                    <span class="dashboard-eyebrow">
+                        🎙️ YOUR PERSONAL AI WORKSPACE
+                    </span>
+
                     <h1>
                         My Voice Notes
                     </h1>
 
                     <p>
-                        Speak naturally and save your thoughts.
+                        Speak naturally, enhance your thoughts with AI,
+                        and keep everything organized.
                     </p>
 
                 </div>
@@ -236,229 +277,245 @@
 
             <section class="voice-box">
 
-                <h2>
-                    🎤 Create Voice Note
-                </h2>
+                <div class="section-heading">
+
+                    <div class="section-icon">
+                        🎤
+                    </div>
+
+                    <div>
+                        <h2>
+                            Create Voice Note
+                        </h2>
+
+                        <p>
+                            Record, translate and enhance your thoughts.
+                        </p>
+                    </div>
+
+                </div>
 
                 <p id="status">
                     Select the language you will speak and start recording.
                 </p>
 
 
-                <!-- SPEAKING LANGUAGE -->
+                <!-- LANGUAGE CONTROLS -->
 
-                <div class="language-box">
+                <div class="language-grid">
 
-                    <label for="speechLanguage">
-                        🎤 Speak In
-                    </label>
+                    <!-- SPEAKING LANGUAGE -->
 
-                    <select id="speechLanguage">
+                    <div class="language-box">
 
-                        <!-- INDIA -->
+                        <label for="speechLanguage">
+                            🎤 Speak In
+                        </label>
 
-                        <option value="English">
-                            🇬🇧 English
-                        </option>
+                        <select id="speechLanguage">
 
-                        <option value="Hindi">
-                            🇮🇳 Hindi
-                        </option>
+                            <option value="English">
+                                🇬🇧 English
+                            </option>
 
-                        <option value="Bengali">
-                            🇮🇳 Bengali
-                        </option>
+                            <option value="Hindi">
+                                🇮🇳 Hindi
+                            </option>
 
-                        <option value="Gujarati">
-                            🇮🇳 Gujarati
-                        </option>
+                            <option value="Bengali">
+                                🇮🇳 Bengali
+                            </option>
 
-                        <option value="Kannada">
-                            🇮🇳 Kannada
-                        </option>
+                            <option value="Gujarati">
+                                🇮🇳 Gujarati
+                            </option>
 
-                        <option value="Malayalam">
-                            🇮🇳 Malayalam
-                        </option>
+                            <option value="Kannada">
+                                🇮🇳 Kannada
+                            </option>
 
-                        <option value="Marathi">
-                            🇮🇳 Marathi
-                        </option>
+                            <option value="Malayalam">
+                                🇮🇳 Malayalam
+                            </option>
 
-                        <option value="Punjabi">
-                            🇮🇳 Punjabi
-                        </option>
+                            <option value="Marathi">
+                                🇮🇳 Marathi
+                            </option>
 
-                        <option value="Tamil">
-                            🇮🇳 Tamil
-                        </option>
+                            <option value="Punjabi">
+                                🇮🇳 Punjabi
+                            </option>
 
-                        <option value="Telugu">
-                            🇮🇳 Telugu
-                        </option>
+                            <option value="Tamil">
+                                🇮🇳 Tamil
+                            </option>
 
-                        <option value="Urdu">
-                            🇮🇳 Urdu
-                        </option>
+                            <option value="Telugu">
+                                🇮🇳 Telugu
+                            </option>
 
-                        <!-- INTERNATIONAL -->
+                            <option value="Urdu">
+                                🇮🇳 Urdu
+                            </option>
 
-                        <option value="German">
-                            🇩🇪 German
-                        </option>
+                            <option value="German">
+                                🇩🇪 German
+                            </option>
 
-                        <option value="French">
-                            🇫🇷 French
-                        </option>
+                            <option value="French">
+                                🇫🇷 French
+                            </option>
 
-                        <option value="Spanish">
-                            🇪🇸 Spanish
-                        </option>
+                            <option value="Spanish">
+                                🇪🇸 Spanish
+                            </option>
 
-                        <option value="Italian">
-                            🇮🇹 Italian
-                        </option>
+                            <option value="Italian">
+                                🇮🇹 Italian
+                            </option>
 
-                        <option value="Portuguese">
-                            🇵🇹 Portuguese
-                        </option>
+                            <option value="Portuguese">
+                                🇵🇹 Portuguese
+                            </option>
 
-                        <option value="Japanese">
-                            🇯🇵 Japanese
-                        </option>
+                            <option value="Japanese">
+                                🇯🇵 Japanese
+                            </option>
 
-                        <option value="Korean">
-                            🇰🇷 Korean
-                        </option>
+                            <option value="Korean">
+                                🇰🇷 Korean
+                            </option>
 
-                        <option value="Chinese">
-                            🇨🇳 Chinese
-                        </option>
+                            <option value="Chinese">
+                                🇨🇳 Chinese
+                            </option>
 
-                        <option value="Russian">
-                            🇷🇺 Russian
-                        </option>
+                            <option value="Russian">
+                                🇷🇺 Russian
+                            </option>
 
-                        <option value="Arabic">
-                            🇸🇦 Arabic
-                        </option>
+                            <option value="Arabic">
+                                🇸🇦 Arabic
+                            </option>
 
-                        <option value="Turkish">
-                            🇹🇷 Turkish
-                        </option>
+                            <option value="Turkish">
+                                🇹🇷 Turkish
+                            </option>
 
-                        <option value="Dutch">
-                            🇳🇱 Dutch
-                        </option>
+                            <option value="Dutch">
+                                🇳🇱 Dutch
+                            </option>
 
-                    </select>
+                        </select>
 
-                </div>
+                    </div>
 
 
-                <!-- TRANSLATION LANGUAGE -->
+                    <!-- TRANSLATION LANGUAGE -->
 
-                <div class="language-box">
+                    <div class="language-box">
 
-                    <label for="languageSelect">
-                        🌐 Translate To
-                    </label>
+                        <label for="languageSelect">
+                            🌐 Translate To
+                        </label>
 
-                    <select id="languageSelect">
+                        <select id="languageSelect">
 
-                        <option value="English">
-                            🇬🇧 English
-                        </option>
+                            <option value="English">
+                                🇬🇧 English
+                            </option>
 
-                        <option value="Hindi">
-                            🇮🇳 Hindi
-                        </option>
+                            <option value="Hindi">
+                                🇮🇳 Hindi
+                            </option>
 
-                        <option value="Bengali">
-                            🇮🇳 Bengali
-                        </option>
+                            <option value="Bengali">
+                                🇮🇳 Bengali
+                            </option>
 
-                        <option value="Gujarati">
-                            🇮🇳 Gujarati
-                        </option>
+                            <option value="Gujarati">
+                                🇮🇳 Gujarati
+                            </option>
 
-                        <option value="Kannada">
-                            🇮🇳 Kannada
-                        </option>
+                            <option value="Kannada">
+                                🇮🇳 Kannada
+                            </option>
 
-                        <option value="Malayalam">
-                            🇮🇳 Malayalam
-                        </option>
+                            <option value="Malayalam">
+                                🇮🇳 Malayalam
+                            </option>
 
-                        <option value="Marathi">
-                            🇮🇳 Marathi
-                        </option>
+                            <option value="Marathi">
+                                🇮🇳 Marathi
+                            </option>
 
-                        <option value="Punjabi">
-                            🇮🇳 Punjabi
-                        </option>
+                            <option value="Punjabi">
+                                🇮🇳 Punjabi
+                            </option>
 
-                        <option value="Tamil">
-                            🇮🇳 Tamil
-                        </option>
+                            <option value="Tamil">
+                                🇮🇳 Tamil
+                            </option>
 
-                        <option value="Telugu">
-                            🇮🇳 Telugu
-                        </option>
+                            <option value="Telugu">
+                                🇮🇳 Telugu
+                            </option>
 
-                        <option value="Urdu">
-                            🇮🇳 Urdu
-                        </option>
+                            <option value="Urdu">
+                                🇮🇳 Urdu
+                            </option>
 
-                        <option value="German">
-                            🇩🇪 German
-                        </option>
+                            <option value="German">
+                                🇩🇪 German
+                            </option>
 
-                        <option value="French">
-                            🇫🇷 French
-                        </option>
+                            <option value="French">
+                                🇫🇷 French
+                            </option>
 
-                        <option value="Spanish">
-                            🇪🇸 Spanish
-                        </option>
+                            <option value="Spanish">
+                                🇪🇸 Spanish
+                            </option>
 
-                        <option value="Italian">
-                            🇮🇹 Italian
-                        </option>
+                            <option value="Italian">
+                                🇮🇹 Italian
+                            </option>
 
-                        <option value="Portuguese">
-                            🇵🇹 Portuguese
-                        </option>
+                            <option value="Portuguese">
+                                🇵🇹 Portuguese
+                            </option>
 
-                        <option value="Japanese">
-                            🇯🇵 Japanese
-                        </option>
+                            <option value="Japanese">
+                                🇯🇵 Japanese
+                            </option>
 
-                        <option value="Korean">
-                            🇰🇷 Korean
-                        </option>
+                            <option value="Korean">
+                                🇰🇷 Korean
+                            </option>
 
-                        <option value="Chinese">
-                            🇨🇳 Chinese
-                        </option>
+                            <option value="Chinese">
+                                🇨🇳 Chinese
+                            </option>
 
-                        <option value="Russian">
-                            🇷🇺 Russian
-                        </option>
+                            <option value="Russian">
+                                🇷🇺 Russian
+                            </option>
 
-                        <option value="Arabic">
-                            🇸🇦 Arabic
-                        </option>
+                            <option value="Arabic">
+                                🇸🇦 Arabic
+                            </option>
 
-                        <option value="Turkish">
-                            🇹🇷 Turkish
-                        </option>
+                            <option value="Turkish">
+                                🇹🇷 Turkish
+                            </option>
 
-                        <option value="Dutch">
-                            🇳🇱 Dutch
-                        </option>
+                            <option value="Dutch">
+                                🇳🇱 Dutch
+                            </option>
 
-                    </select>
+                        </select>
+
+                    </div>
 
                 </div>
 
@@ -471,6 +528,7 @@
                         id="micBtn"
                         class="mic-btn"
                         type="button"
+                        aria-label="Start recording"
                     >
                         🎤
                     </button>
@@ -484,9 +542,15 @@
 
                 <!-- ORIGINAL TEXT -->
 
-                <h3>
-                    Original Text
-                </h3>
+                <div class="editor-heading">
+                    <h3>
+                        Original Text
+                    </h3>
+
+                    <span>
+                        Editable
+                    </span>
+                </div>
 
                 <div
                     id="transcript"
@@ -498,13 +562,19 @@
 
                 <!-- TRANSLATED TEXT -->
 
-                <h3>
-                    Translated Text
-                </h3>
+                <div class="editor-heading">
+                    <h3>
+                        Translated Text
+                    </h3>
+
+                    <span>
+                        AI Translation
+                    </span>
+                </div>
 
                 <div
                     id="translatedText"
-                    class="transcript"
+                    class="transcript translated-box"
                     data-placeholder="Translation will appear here..."
                 ></div>
 
@@ -534,7 +604,7 @@
                         class="secondary-btn"
                         type="button"
                     >
-                        Clear
+                        ↺ Clear
                     </button>
 
                 </div>
@@ -546,14 +616,26 @@
 
                 <div class="ai-tools">
 
-                    <h3>
-                        🤖 AI Note Assistant
-                    </h3>
+                    <div class="ai-title-row">
 
-                    <p class="ai-description">
-                        Use AI to summarize, extract key points,
-                        or improve your note.
-                    </p>
+                        <div class="ai-icon">
+                            🤖
+                        </div>
+
+                        <div>
+
+                            <h3>
+                                AI Note Assistant
+                            </h3>
+
+                            <p class="ai-description">
+                                Summarize, extract key points,
+                                or improve your note.
+                            </p>
+
+                        </div>
+
+                    </div>
 
                     <div class="ai-buttons">
 
@@ -602,6 +684,7 @@
                         <button
                             id="closeAIResult"
                             type="button"
+                            aria-label="Close AI result"
                         >
                             ✕
                         </button>
@@ -625,6 +708,10 @@
 
                     <div>
 
+                        <span class="section-label">
+                            📚 YOUR LIBRARY
+                        </span>
+
                         <h2>
                             Saved Notes
                         </h2>
@@ -635,11 +722,19 @@
 
                     </div>
 
-                    <input
-                        type="text"
-                        id="searchInput"
-                        placeholder="🔍 Search notes..."
-                    >
+                    <div class="search-wrapper">
+
+                        <span>
+                            🔍
+                        </span>
+
+                        <input
+                            type="text"
+                            id="searchInput"
+                            placeholder="Search notes..."
+                        >
+
+                    </div>
 
                 </div>
 
@@ -654,7 +749,17 @@
                     id="emptyMessage"
                     class="empty-message"
                 >
-                    No notes available. Create your first note!
+                    <span class="empty-icon">
+                        📝
+                    </span>
+
+                    <strong>
+                        No notes available
+                    </strong>
+
+                    <span>
+                        Create your first voice note to see it here.
+                    </span>
                 </p>
 
             </section>
@@ -662,6 +767,220 @@
         </main>
 
     </section>
+
+
+    <!-- =====================================================
+         TITLE MODAL
+    ====================================================== -->
+
+    <div
+        id="titleModal"
+        class="modal hidden"
+    >
+
+        <div class="modal-content title-modal-content">
+
+            <div class="modal-top-icon">
+                💾
+            </div>
+
+            <h2>
+                Save Your Note
+            </h2>
+
+            <p class="modal-description">
+                Give your voice note a title so you can find it easily later.
+            </p>
+
+            <label for="noteTitleInput">
+                Note Title
+            </label>
+
+            <input
+                type="text"
+                id="noteTitleInput"
+                class="modal-input"
+                placeholder="e.g. Project Ideas"
+                maxlength="100"
+                autocomplete="off"
+            >
+
+            <div class="title-counter">
+                <span>
+                    Title is required
+                </span>
+
+                <span id="titleCharacterCount">
+                    0 / 100
+                </span>
+            </div>
+
+            <div class="modal-actions">
+
+                <button
+                    id="cancelTitle"
+                    class="secondary-btn"
+                    type="button"
+                >
+                    Cancel
+                </button>
+
+                <button
+                    id="confirmSaveNote"
+                    class="primary-btn"
+                    type="button"
+                >
+                    💾 Save Note
+                </button>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- =====================================================
+         FULL NOTE MODAL
+    ====================================================== -->
+
+    <div
+        id="noteViewModal"
+        class="modal hidden"
+    >
+
+        <div class="modal-content full-note-modal">
+
+            <div class="full-note-header">
+
+                <div class="full-note-heading">
+
+                    <span class="full-note-label">
+                        🎙️ VOICE NOTE
+                    </span>
+
+                    <h2 id="fullNoteTitle">
+                        Note Title
+                    </h2>
+
+                    <div
+                        id="fullNoteDate"
+                        class="full-note-date"
+                    >
+                        Date
+                    </div>
+
+                </div>
+
+                <div class="full-note-menu-wrapper">
+
+                    <button
+                        id="noteMenuBtn"
+                        class="three-dot-btn"
+                        type="button"
+                        aria-label="Note options"
+                        title="More options"
+                    >
+                        ⋮
+                    </button>
+
+                    <div
+                        id="noteMenu"
+                        class="note-menu hidden"
+                    >
+
+                        <button
+                            id="fullNoteEdit"
+                            type="button"
+                        >
+                            ✏️ Edit
+                        </button>
+
+                        <button
+                            id="fullNoteDelete"
+                            type="button"
+                            class="menu-delete"
+                        >
+                            🗑️ Delete
+                        </button>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <div class="full-note-divider"></div>
+
+
+            <div class="full-note-body">
+
+                <div class="full-note-section">
+
+                    <div class="full-note-section-title">
+                        📝 Note
+                    </div>
+
+                    <div
+                        id="fullNoteContent"
+                        class="full-note-text"
+                    ></div>
+
+                </div>
+
+
+                <div
+                    id="fullNoteSummarySection"
+                    class="full-note-section hidden"
+                >
+
+                    <div class="full-note-section-title">
+                        📝 AI Summary
+                    </div>
+
+                    <div
+                        id="fullNoteSummary"
+                        class="full-note-ai"
+                    ></div>
+
+                </div>
+
+
+                <div
+                    id="fullNoteKeyPointsSection"
+                    class="full-note-section hidden"
+                >
+
+                    <div class="full-note-section-title">
+                        🔑 Key Points
+                    </div>
+
+                    <ul
+                        id="fullNoteKeyPoints"
+                        class="full-note-keypoints"
+                    ></ul>
+
+                </div>
+
+            </div>
+
+
+            <div class="full-note-footer">
+
+                <button
+                    id="closeNoteView"
+                    class="secondary-btn"
+                    type="button"
+                >
+                    Close
+                </button>
+
+            </div>
+
+        </div>
+
+    </div>
 
 
     <!-- =====================================================
@@ -673,11 +992,35 @@
         class="modal hidden"
     >
 
-        <div class="modal-content">
+        <div class="modal-content edit-modal-content">
+
+            <div class="modal-top-icon">
+                ✏️
+            </div>
 
             <h2>
-                ✏️ Edit Note
+                Edit Note
             </h2>
+
+            <p class="modal-description">
+                Update your note title or content.
+            </p>
+
+            <label for="editTitle">
+                Note Title
+            </label>
+
+            <input
+                type="text"
+                id="editTitle"
+                class="modal-input"
+                placeholder="Note title"
+                maxlength="100"
+            >
+
+            <label for="editText">
+                Note Content
+            </label>
 
             <textarea
                 id="editText"
@@ -699,7 +1042,7 @@
                     class="primary-btn"
                     type="button"
                 >
-                    Save Changes
+                    ✓ Save Changes
                 </button>
 
             </div>
@@ -709,9 +1052,68 @@
     </div>
 
 
+    <!-- =====================================================
+         DELETE CONFIRMATION MODAL
+    ====================================================== -->
+
+    <div
+        id="deleteModal"
+        class="modal hidden"
+    >
+
+        <div class="modal-content delete-modal-content">
+
+            <div class="delete-icon">
+                🗑️
+            </div>
+
+            <h2>
+                Delete Note?
+            </h2>
+
+            <p class="modal-description">
+                This note will be permanently removed from your account.
+            </p>
+
+            <div class="modal-actions">
+
+                <button
+                    id="cancelDelete"
+                    class="secondary-btn"
+                    type="button"
+                >
+                    Cancel
+                </button>
+
+                <button
+                    id="confirmDelete"
+                    class="danger-btn"
+                    type="button"
+                >
+                    🗑️ Delete
+                </button>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- =====================================================
+         TOAST NOTIFICATIONS
+    ====================================================== -->
+
+    <div
+        id="toastContainer"
+        class="toast-container"
+        aria-live="polite"
+        aria-atomic="true"
+    ></div>
+
+
     <script src="script.js"></script>
 
 </body>
 
 </html>
-
