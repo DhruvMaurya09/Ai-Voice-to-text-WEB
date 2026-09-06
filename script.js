@@ -859,16 +859,19 @@ if (logoutBtn) {
 }
 
 
-// =========================================================
-// SPEECH RECOGNITION — CONTINUOUS & FAST
-// =========================================================
+// ============================================
+// SPEECH RECOGNITION
+// ============================================
 
 const SpeechRecognition =
     window.SpeechRecognition ||
     window.webkitSpeechRecognition;
 
+
 const speechLanguages = {
+
     English: "en-US",
+
     Hindi: "hi-IN",
     Bengali: "bn-IN",
     Gujarati: "gu-IN",
@@ -885,177 +888,211 @@ const speechLanguages = {
     Spanish: "es-ES",
     Italian: "it-IT",
     Portuguese: "pt-PT",
-
     Japanese: "ja-JP",
     Korean: "ko-KR",
     Chinese: "zh-CN",
     Russian: "ru-RU",
+
     Arabic: "ar-SA",
     Turkish: "tr-TR",
     Dutch: "nl-NL"
+
 };
+
+
+// ============================================
+// SPEECH STATE
+// ============================================
 
 let recognition = null;
 
 let isRecording = false;
+
 let shouldKeepRecording = false;
+
 let isStarting = false;
 
 let finalTranscript = "";
-let interimTranscript = "";
+
+let lastFinalText = "";
+
+let lastFinalTime = 0;
 
 let restartTimer = null;
 
 
-// =========================================================
-// GET SELECTED SPEECH LANGUAGE
-// =========================================================
+// ============================================
+// GET SPEECH LANGUAGE
+// ============================================
 
-function getRecognitionLanguage() {
-    return speechLanguages[getSpeechLanguage()] || "en-US";
+function getSpeechLanguage() {
+
+    return speechLanguage
+        ? speechLanguage.value
+        : "English";
+
 }
 
 
-// =========================================================
-// UPDATE TRANSCRIPT UI
-// =========================================================
-
-function updateTranscriptDisplay() {
-    if (!transcript) return;
-
-    const finalText = finalTranscript.trim();
-    const interimText = interimTranscript.trim();
-
-    let displayText = finalText;
-
-    if (interimText) {
-        displayText +=
-            (displayText ? " " : "") + interimText;
-    }
-
-    transcript.textContent = displayText;
-}
-
-
-// =========================================================
-// CREATE SPEECH RECOGNITION
-// =========================================================
+// ============================================
+// CREATE RECOGNITION
+// ============================================
 
 function createRecognition() {
 
     if (!SpeechRecognition) {
+
         return null;
+
     }
 
-    const instance = new SpeechRecognition();
 
-    // IMPORTANT:
-    // Keep recognition running continuously.
-    instance.continuous = true;
+    const instance =
+        new SpeechRecognition();
 
-    // Show words while the user is speaking.
-    instance.interimResults = true;
+
+    instance.continuous = false;
+
+    instance.interimResults = false;
 
     instance.maxAlternatives = 1;
 
-    instance.lang = getRecognitionLanguage();
+
+    instance.lang =
+        speechLanguages[
+            getSpeechLanguage()
+        ] || "en-US";
 
 
-    // =====================================================
+    // ========================================
     // ON START
-    // =====================================================
+    // ========================================
 
     instance.onstart = () => {
 
         isStarting = false;
+
         isRecording = true;
 
+
         if (micBtn) {
-            micBtn.classList.add("recording");
+
+            micBtn.classList.add(
+                "recording"
+            );
+
         }
+
 
         if (recordingText) {
-            recordingText.textContent = "Listening...";
+
+            recordingText.textContent =
+                "Listening...";
+
         }
+
 
         if (statusText) {
+
             statusText.textContent =
                 `Listening in ${getSpeechLanguage()}. Speak now.`;
+
         }
 
-        console.log(
-            "Speech recognition started:",
-            instance.lang
-        );
     };
-}
-// =====================================================
-// ON RESULT
-// =====================================================
-
-instance.onresult = (event) => {
-
-    let currentInterim = "";
-
-    for (
-        let i = event.resultIndex;
-        i < event.results.length;
-        i++
-    ) {
-
-        const result = event.results[i];
-
-        if (!result || !result[0]) {
-            continue;
-        }
-
-        const text =
-            result[0].transcript.trim();
-
-        if (!text) {
-            continue;
-        }
 
 
-        // FINAL SPEECH
-        if (result.isFinal) {
+    // ========================================
+    // ON RESULT
+    // ========================================
+
+    instance.onresult = event => {
+
+        for (
+            let i = event.resultIndex;
+            i < event.results.length;
+            i++
+        ) {
+
+            const result =
+                event.results[i];
+
+
+            if (!result.isFinal) {
+
+                continue;
+
+            }
+
+
+            const text =
+                result[0]
+                    .transcript
+                    .trim();
+
+
+            if (!text) {
+
+                continue;
+
+            }
+
+
+            const now =
+                Date.now();
+
+
+            const exactDuplicate =
+                text === lastFinalText &&
+                (now - lastFinalTime) < 3000;
+
+
+            if (exactDuplicate) {
+
+                console.log(
+                    "Duplicate speech result ignored:",
+                    text
+                );
+
+                continue;
+
+            }
+
 
             finalTranscript +=
-                (finalTranscript ? " " : "") +
+                (finalTranscript
+                    ? " "
+                    : "") +
                 text;
 
-            console.log(
-                "Final speech:",
-                text
-            );
-        }
 
-
-        // LIVE / INTERIM SPEECH
-        else {
-
-            currentInterim +=
-                (currentInterim ? " " : "") +
+            lastFinalText =
                 text;
+
+            lastFinalTime =
+                now;
+
+
+            if (transcript) {
+
+                transcript.textContent =
+                    finalTranscript;
+
+            }
+
         }
-    }
+
+    };
 
 
-    interimTranscript =
-        currentInterim;
-
-    updateTranscriptDisplay();
-};
-    
-    
-
-    // =====================================================
+    // ========================================
     // ON ERROR
-    // =====================================================
+    // ========================================
 
-    instance.onerror = (event) => {
+    instance.onerror = event => {
 
         isStarting = false;
+
 
         console.error(
             "Speech recognition error:",
@@ -1063,28 +1100,25 @@ instance.onresult = (event) => {
         );
 
 
-        // ---------------------------------------------
-        // MICROPHONE PERMISSION
-        // ---------------------------------------------
+        if (
+            event.error ===
+            "not-allowed"
+        ) {
 
-        if (event.error === "not-allowed") {
+            shouldKeepRecording =
+                false;
 
-            shouldKeepRecording = false;
-            isRecording = false;
+            isRecording =
+                false;
+
 
             if (statusText) {
+
                 statusText.textContent =
                     "Microphone permission denied.";
+
             }
 
-            if (micBtn) {
-                micBtn.classList.remove("recording");
-            }
-
-            if (recordingText) {
-                recordingText.textContent =
-                    "Start Recording";
-            }
 
             showToast(
                 "Please allow microphone access in your browser.",
@@ -1092,20 +1126,24 @@ instance.onresult = (event) => {
                 "Microphone Permission"
             );
 
+
             return;
+
         }
 
 
-        // ---------------------------------------------
-        // NETWORK ERROR
-        // ---------------------------------------------
-
-        if (event.error === "network") {
+        if (
+            event.error ===
+            "network"
+        ) {
 
             if (statusText) {
+
                 statusText.textContent =
                     "Speech network error. Check your internet.";
+
             }
+
 
             showToast(
                 "Check your internet connection and try again.",
@@ -1113,210 +1151,175 @@ instance.onresult = (event) => {
                 "Speech Network Error"
             );
 
-            /*
-             * Don't immediately stop the whole recording.
-             * Browser may recover automatically.
-             */
-            if (shouldKeepRecording) {
-                scheduleRecognitionRestart(500);
-            }
 
             return;
+
         }
 
 
-        // ---------------------------------------------
-        // NO SPEECH
-        // ---------------------------------------------
+        if (
+            event.error ===
+            "no-speech"
+        ) {
 
-        if (event.error === "no-speech") {
+            if (
+                shouldKeepRecording
+            ) {
 
-            /*
-             * Do NOT stop recording.
-             * Keep microphone active.
-             */
-            if (shouldKeepRecording) {
-                scheduleRecognitionRestart(300);
+                scheduleRecognitionRestart();
+
             }
 
-            return;
-        }
-
-
-        // ---------------------------------------------
-        // ABORTED
-        // ---------------------------------------------
-
-        if (event.error === "aborted") {
-
-            /*
-             * Aborted can happen during automatic restart.
-             * Don't show an error to the user.
-             */
-
-            if (shouldKeepRecording) {
-                scheduleRecognitionRestart(300);
-            }
 
             return;
+
         }
 
-
-        // ---------------------------------------------
-        // OTHER ERRORS
-        // ---------------------------------------------
 
         if (statusText) {
+
             statusText.textContent =
-                "Speech error: " + event.error;
+                "Speech error: " +
+                event.error;
+
         }
+
     };
 
-// =====================================================
-// ON END
-// =====================================================
 
-instance.onend = () => {
+    // ========================================
+    // ON END
+    // ========================================
 
-    isStarting = false;
+    instance.onend = () => {
 
-    console.log(
-        "Speech recognition ended."
-    );
+        isStarting = false;
 
 
-    /*
-     * User ne STOP nahi dabaya hai,
-     * to recording continue rakho.
-     */
+        if (shouldKeepRecording) {
 
-    if (shouldKeepRecording) {
+            scheduleRecognitionRestart();
 
-        isRecording = true;
+            return;
+
+        }
+
+
+        isRecording = false;
+
 
         if (micBtn) {
-            micBtn.classList.add("recording");
+
+            micBtn.classList.remove(
+                "recording"
+            );
+
         }
+
 
         if (recordingText) {
+
             recordingText.textContent =
-                "Listening...";
+                "Start Recording";
+
         }
 
-        scheduleRecognitionRestart(300);
-
-        return;
-    }
+    };
 
 
-    // User actually stopped recording
+    return instance;
 
-    isRecording = false;
-
-    interimTranscript = "";
-
-    updateTranscriptDisplay();
-
-    if (micBtn) {
-        micBtn.classList.remove("recording");
-    }
-
-    if (recordingText) {
-        recordingText.textContent =
-            "Start Recording";
-    }
-};
-
-    
-
-// =========================================================
-// AUTOMATIC RESTART
-// =========================================================
-
-function scheduleRecognitionRestart(delay = 250) {
-
-    if (!shouldKeepRecording) {
-        return;
-    }
-
-    if (restartTimer) {
-        clearTimeout(restartTimer);
-        restartTimer = null;
-    }
-
-    restartTimer = setTimeout(() => {
-
-        restartTimer = null;
-
-        if (!shouldKeepRecording) {
-            return;
-        }
-
-        startRecognitionSession();
-
-    }, delay);
 }
 
-// =========================================================
-// START RECOGNITION SESSION
-// =========================================================
+
+// ============================================
+// CONTROLLED RESTART
+// ============================================
+
+function scheduleRecognitionRestart() {
+
+    if (!shouldKeepRecording) {
+
+        return;
+
+    }
+
+
+    if (restartTimer) {
+
+        clearTimeout(
+            restartTimer
+        );
+
+    }
+
+
+    restartTimer =
+        setTimeout(
+            () => {
+
+                startRecognitionSession();
+
+            },
+            250
+        );
+
+}
+
+
+// ============================================
+// START ONE SESSION
+// ============================================
 
 function startRecognitionSession() {
 
     if (!shouldKeepRecording) {
+
         return;
+
     }
+
 
     if (isStarting) {
+
         return;
+
     }
 
-    /*
-     * IMPORTANT:
-     * Do NOT abort the existing recognition here.
-     * This function is called again only when the browser
-     * has ended the previous session.
-     */
 
     if (recognition) {
+
         try {
-            recognition.lang = getRecognitionLanguage();
-            isStarting = true;
-            recognition.start();
 
-            console.log("Recognition restarted.");
-
-            return;
+            recognition.abort();
 
         } catch (error) {
 
             console.log(
-                "Existing recognition could not restart:",
-                error
+                "Previous recognition already stopped."
             );
 
-            recognition = null;
-            isStarting = false;
         }
+
     }
 
 
-    // Create a new recognition instance only when needed
-    recognition = createRecognition();
+    recognition =
+        createRecognition();
+
 
     if (!recognition) {
 
-        if (statusText) {
-            statusText.textContent =
-                "Speech Recognition is not supported.";
-        }
-
         return;
+
     }
 
 
     recognition.lang =
-        getRecognitionLanguage();
+        speechLanguages[
+            getSpeechLanguage()
+        ] || "en-US";
+
 
     isStarting = true;
 
@@ -1325,30 +1328,31 @@ function startRecognitionSession() {
 
         recognition.start();
 
-        console.log(
-            "Starting microphone recognition..."
-        );
-
     } catch (error) {
 
         isStarting = false;
+
 
         console.error(
             "Recognition start error:",
             error
         );
 
+
         if (shouldKeepRecording) {
-            scheduleRecognitionRestart(700);
+
+            scheduleRecognitionRestart();
+
         }
+
     }
+
 }
 
 
-
-// =========================================================
+// ============================================
 // START RECORDING
-// =========================================================
+// ============================================
 
 function startRecording() {
 
@@ -1361,72 +1365,74 @@ function startRecording() {
         );
 
         return;
+
     }
 
 
-    // Already recording
     if (
         isRecording ||
         shouldKeepRecording
     ) {
+
         return;
+
     }
 
 
-    // Clear previous transcript
     finalTranscript = "";
-    interimTranscript = "";
+
+    lastFinalText = "";
+
+    lastFinalTime = 0;
 
 
-    // Start continuous recording
     shouldKeepRecording = true;
 
 
     if (transcript) {
-        transcript.textContent = "";
-    }
 
+        transcript.textContent =
+            "";
 
-    if (statusText) {
-        statusText.textContent =
-            "Starting microphone...";
     }
 
 
     startRecognitionSession();
+
 }
 
 
-// =========================================================
+// ============================================
 // STOP RECORDING
-// =========================================================
+// ============================================
 
 function stopRecording() {
 
-    /*
-     * This is the ONLY place where we intentionally
-     * stop the continuous recording.
-     */
+    shouldKeepRecording =
+        false;
 
-    shouldKeepRecording = false;
-    isRecording = false;
-    isStarting = false;
+    isRecording =
+        false;
+
+    isStarting =
+        false;
 
 
-    // Cancel pending restart
     if (restartTimer) {
 
-        clearTimeout(restartTimer);
+        clearTimeout(
+            restartTimer
+        );
 
-        restartTimer = null;
+        restartTimer =
+            null;
+
     }
 
 
     if (recognition) {
 
         try {
-
-            recognition.onend = null;
 
             recognition.stop();
 
@@ -1435,50 +1441,47 @@ function stopRecording() {
             console.log(
                 "Recognition already stopped."
             );
+
         }
 
-        recognition = null;
     }
-
-
-    // Remove temporary/interim text
-    interimTranscript = "";
-
-    updateTranscriptDisplay();
 
 
     if (micBtn) {
-        micBtn.classList.remove("recording");
+
+        micBtn.classList.remove(
+            "recording"
+        );
+
     }
+
 
     if (recordingText) {
+
         recordingText.textContent =
             "Start Recording";
+
     }
+
 
     if (statusText) {
+
         statusText.textContent =
             "Recording stopped.";
+
     }
 
-
-    console.log(
-        "Microphone recording stopped by user."
-    );
 }
 
 
-// =========================================================
-// INITIALIZE SPEECH RECOGNITION
-// =========================================================
+// ============================================
+// INITIALIZE SPEECH
+// ============================================
 
 if (SpeechRecognition) {
 
-    recognition = null;
-
-    console.log(
-        "Speech Recognition supported."
-    );
+    recognition =
+        createRecognition();
 
 } else {
 
@@ -1486,11 +1489,9 @@ if (SpeechRecognition) {
 
         statusText.textContent =
             "Speech Recognition is not supported. Use Google Chrome.";
+
     }
 
-    console.warn(
-        "Speech Recognition is not supported in this browser."
-    );
 }
 
 
@@ -1507,14 +1508,6 @@ if (speechLanguage) {
             const language =
                 speechLanguage.value;
 
-            /*
-             * If recording is NOT running,
-             * update the recognition language.
-             *
-             * If recording is already running,
-             * don't change it in the middle of a session.
-             * User can stop and start again with the new language.
-             */
 
             if (
                 recognition &&
@@ -1522,8 +1515,10 @@ if (speechLanguage) {
             ) {
 
                 recognition.lang =
-                    speechLanguages[language] ||
-                    "en-US";
+                    speechLanguages[
+                        language
+                    ] || "en-US";
+
             }
 
 
@@ -1531,6 +1526,7 @@ if (speechLanguage) {
 
                 statusText.textContent =
                     `Speak in ${language} and click the microphone.`;
+
             }
 
         }
@@ -1549,7 +1545,10 @@ if (micBtn) {
         "click",
         () => {
 
-            if (!SpeechRecognition) {
+            if (
+                !recognition &&
+                !SpeechRecognition
+            ) {
 
                 showToast(
                     "Please use Google Chrome.",
@@ -1558,17 +1557,16 @@ if (micBtn) {
                 );
 
                 return;
+
             }
 
 
             if (shouldKeepRecording) {
 
-                // STOP
                 stopRecording();
 
             } else {
 
-                // START
                 startRecording();
 
             }
@@ -1585,38 +1583,41 @@ if (micBtn) {
 
 function resetSpeechState() {
 
-    /*
-     * Completely stop automatic recording/restarts.
-     */
+    shouldKeepRecording =
+        false;
 
-    shouldKeepRecording = false;
-    isRecording = false;
-    isStarting = false;
+    isRecording =
+        false;
+
+    isStarting =
+        false;
 
 
-    // Cancel pending restart
     if (restartTimer) {
 
         clearTimeout(
             restartTimer
         );
 
-        restartTimer = null;
+        restartTimer =
+            null;
+
     }
 
 
-    // Clear transcript variables
-    finalTranscript = "";
-    interimTranscript = "";
+    finalTranscript =
+        "";
+
+    lastFinalText =
+        "";
+
+    lastFinalTime =
+        0;
 
 
-    // Stop recognition
     if (recognition) {
 
         try {
-
-            recognition.onend = null;
-            recognition.onerror = null;
 
             recognition.abort();
 
@@ -1625,29 +1626,11 @@ function resetSpeechState() {
             console.log(
                 "Recognition already stopped."
             );
+
         }
 
-        recognition = null;
     }
 
-
-    // Reset microphone UI
-    if (micBtn) {
-
-        micBtn.classList.remove(
-            "recording"
-        );
-    }
-
-
-    if (recordingText) {
-
-        recordingText.textContent =
-            "Start Recording";
-    }
-
-
-    updateTranscriptDisplay();
 }
 
 
@@ -1660,10 +1643,12 @@ function getNoteText() {
     if (!transcript) {
 
         return "";
+
     }
 
 
     return transcript.textContent.trim();
+
 }
 
 
