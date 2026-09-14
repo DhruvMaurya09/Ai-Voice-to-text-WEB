@@ -2892,29 +2892,45 @@ async function displayNotes(
                     "English";
 
 
+                const category =
+                    note.category ||
+                    "Personal";
+                    
+                const categoryIcon =
+                    getCategoryIcon(category);    
+
+
                 card.innerHTML = `
 
-                    <h3>
-                        🎙️ ${escapeHTML(title)}
-                    </h3>
+    <h3>
+        🎙️ ${escapeHTML(title)}
+    </h3>
 
-                    <p class="note-preview">
-                        ${escapeHTML(preview)}
-                    </p>
 
-                    <div class="note-card-meta">
+    <p class="note-preview">
+        ${escapeHTML(preview)}
+    </p>
 
-                        <span class="note-date">
-                            📅 ${escapeHTML(date)}
-                        </span>
 
-                        <span class="note-language">
-                            ${escapeHTML(language)}
-                        </span>
+    <div class="note-card-meta">
 
-                    </div>
+        <span class="note-category">
+            ${categoryIcon}
+            ${escapeHTML(category)}
+        </span>
 
-                `;
+        <span class="note-date">
+            📅 ${escapeHTML(date)}
+        </span>
+
+        <span class="note-language">
+            ${escapeHTML(language)}
+        </span>
+
+    </div>
+
+`;
+                    
 
 
                 card.style.animationDelay =
