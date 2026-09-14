@@ -64,6 +64,245 @@ function authenticate(req, res, next) {
 
 }
 
+// =====================================================
+// AUTOMATIC NOTE CATEGORIZATION
+// =====================================================
+
+function categorizeNote(title = "", content = "") {
+
+    const text =
+        `${title} ${content}`.toLowerCase();
+
+
+    // ================================
+    // COLLEGE
+    // ================================
+
+    const collegeKeywords = [
+
+        "college",
+        "university",
+        "class",
+        "lecture",
+        "assignment",
+        "exam",
+        "semester",
+        "professor",
+        "teacher",
+        "student",
+        "lab",
+        "practical",
+        "subject",
+        "dsa",
+        "data structure",
+        "algorithm",
+        "computer science",
+        "attendance",
+        "internal",
+        "mid sem",
+        "end sem"
+
+    ];
+
+
+    // ================================
+    // WORK
+    // ================================
+
+    const workKeywords = [
+
+        "office",
+        "work",
+        "meeting",
+        "client",
+        "project",
+        "deadline",
+        "employee",
+        "manager",
+        "boss",
+        "company",
+        "business",
+        "task for work",
+        "team",
+        "presentation",
+        "report",
+        "professional",
+        "internship"
+
+    ];
+
+
+    // ================================
+    // SHOPPING
+    // ================================
+
+    const shoppingKeywords = [
+
+        "buy",
+        "purchase",
+        "shopping",
+        "shop",
+        "order",
+        "amazon",
+        "flipkart",
+        "cart",
+        "price",
+        "product",
+        "grocery",
+        "groceries",
+        "clothes",
+        "shoes",
+        "laptop",
+        "phone",
+        "headphones",
+        "charger"
+
+    ];
+
+
+    // ================================
+    // TASKS
+    // ================================
+
+    const taskKeywords = [
+
+        "todo",
+        "to do",
+        "task",
+        "tasks",
+        "reminder",
+        "remember",
+        "complete",
+        "finish",
+        "submit",
+        "call",
+        "email",
+        "tomorrow",
+        "today",
+        "schedule",
+        "deadline",
+        "need to",
+        "have to",
+        "should do"
+
+    ];
+
+
+    // ================================
+    // IDEAS
+    // ================================
+
+    const ideaKeywords = [
+
+        "idea",
+        "ideas",
+        "concept",
+        "innovation",
+        "innovative",
+        "startup",
+        "feature",
+        "build",
+        "create",
+        "invention",
+        "app idea",
+        "project idea",
+        "business idea",
+        "new idea",
+        "thought",
+        "brainstorm"
+
+    ];
+
+
+    // ================================
+    // SCORE CALCULATION
+    // ================================
+
+    const scores = {
+
+        College: 0,
+        Work: 0,
+        Ideas: 0,
+        Shopping: 0,
+        Personal: 0,
+        Tasks: 0
+
+    };
+
+
+    collegeKeywords.forEach(keyword => {
+
+        if (text.includes(keyword)) {
+            scores.College++;
+        }
+
+    });
+
+
+    workKeywords.forEach(keyword => {
+
+        if (text.includes(keyword)) {
+            scores.Work++;
+        }
+
+    });
+
+
+    shoppingKeywords.forEach(keyword => {
+
+        if (text.includes(keyword)) {
+            scores.Shopping++;
+        }
+
+    });
+
+
+    taskKeywords.forEach(keyword => {
+
+        if (text.includes(keyword)) {
+            scores.Tasks++;
+        }
+
+    });
+
+
+    ideaKeywords.forEach(keyword => {
+
+        if (text.includes(keyword)) {
+            scores.Ideas++;
+        }
+
+    });
+
+
+    // ================================
+    // FIND HIGHEST SCORE
+    // ================================
+
+    let bestCategory = "Personal";
+    let highestScore = 0;
+
+
+    Object.keys(scores).forEach(category => {
+
+        if (
+            scores[category] > highestScore
+        ) {
+
+            highestScore =
+                scores[category];
+
+            bestCategory =
+                category;
+
+        }
+
+    });
+
+
+    return bestCategory;
+
+}
 
 // =====================================================
 // GET ALL NOTES
@@ -171,7 +410,6 @@ router.post(
 
                 title,
                 content,
-                category,
                 language,
                 summary,
                 keyPoints
@@ -194,37 +432,44 @@ router.post(
             }
 
 
-            const note =
-                await Note.create({
+            
+            const detectedCategory =
+    categorizeNote(
+        title || "",
+        content
+    );
 
-                    userId:
-                        req.userId,
 
-                    title:
-                        title ||
-                        "Voice Note",
+const note =
+    await Note.create({
 
-                    content:
-                        content.trim(),
+        userId:
+            req.userId,
 
-                    category:
-                        category ||
-                        "Personal",
+        title:
+            title ||
+            "Voice Note",
 
-                    language:
-                        language ||
-                        "English",
+        content:
+            content.trim(),
 
-                    summary:
-                        summary ||
-                        "",
+        category:
+            detectedCategory,
 
-                    keyPoints:
-                        Array.isArray(keyPoints)
-                            ? keyPoints
-                            : []
+        language:
+            language ||
+            "English",
 
-                });
+        summary:
+            summary ||
+            "",
+
+        keyPoints:
+            Array.isArray(keyPoints)
+                ? keyPoints
+                : []
+
+    });
 
 
             res.status(201).json(
