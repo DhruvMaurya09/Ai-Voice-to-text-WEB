@@ -2761,6 +2761,28 @@ if (clearTranscript) {
 
 }
 
+// ============================================
+// CATEGORY ICON
+// ============================================
+
+function getCategoryIcon(category) {
+
+    const icons = {
+        Personal: "👤",
+        Work: "💼",
+        Study: "📚",
+        Ideas: "💡",
+        Meeting: "🤝",
+        Important: "⭐",
+        Finance: "💰",
+        Health: "❤️",
+        Travel: "✈️",
+        Shopping: "🛒"
+    };
+
+    return icons[category] || "📝";
+}
+
 
 // ============================================
 // GET NOTES
