@@ -3304,3 +3304,48 @@ body.dark .toast-close {
     box-shadow: 0 0 0 1000px #ffffff inset !important;
     background-color: #ffffff !important;
 }
+
+/* =========================================================
+   AUTOMATIC NOTE CATEGORY
+   ========================================================= */
+
+.note-card-meta {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-top: 14px;
+}
+
+
+.note-category,
+.note-date,
+.note-language {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    min-height: 28px;
+    padding: 5px 9px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 750;
+}
+
+
+.note-category {
+    background: rgba(99, 102, 241, 0.10);
+    color: #4f46e5;
+    border: 1px solid rgba(99, 102, 241, 0.14);
+}
+
+
+.note-date {
+    background: rgba(107, 114, 128, 0.08);
+    color: #6b7280;
+}
+
+
+.note-language {
+    background: rgba(16, 185, 129, 0.09);
+    color: #047857;
+}
