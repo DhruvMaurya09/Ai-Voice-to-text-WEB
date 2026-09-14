@@ -44,24 +44,23 @@ const noteSchema = new mongoose.Schema(
         },
 
 
+        
         category: {
 
-            type:
-                String,
+         type: String,
 
-            enum: [
+        enum: [
+        "College",
+        "Work",
+        "Ideas",
+        "Shopping",
+        "Personal",
+        "Tasks"
+    ],
 
-                "College",
-                "Office",
-                "Personal",
-                "Other"
+    default: "Personal"
 
-            ],
-
-            default:
-                "Personal"
-
-        },
+},
 
 
         language: {
